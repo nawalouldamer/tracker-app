@@ -149,10 +149,10 @@ function dur(ms){const m=Math.round(Math.max(0,ms)/60000),h=Math.floor(m/60);ret
 function clock(ms){const s=Math.floor(Math.max(0,ms)/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)}
 
 /* ---------- data ---------- */
-const seedMilestone=()=>({id:'m2',name:'Milestone 2 — Supervised Fine-Tuning Baseline',objective:'Learn the complete SFT pipeline before RL. Train and evaluate the model on the same task.',archived:false,packages:[{id:'pipeline',name:'Understand the SFT pipeline',tasks:[{id:'loss',name:'Inspect causal LM loss and teacher forcing',done:false},{id:'mask',name:'Verify loss masking on a training example',done:false},{id:'packing',name:'Understand packing and tokenized batches',done:false},{id:'schedule',name:'Understand epochs, LR, overfitting and leakage',done:false},{id:'lora',name:'Understand LoRA, gradient accumulation and effective batch size',done:false}]},{id:'small',name:'Experiment A — SFT-small',tasks:[{id:'train-small',name:'Run and log SFT-small',done:false},{id:'eval-small',name:'Evaluate on held-out examples',done:false}]},{id:'large',name:'Experiment B — SFT-large',tasks:[{id:'train-large',name:'Run SFT-large with comparable settings',done:false},{id:'eval-large',name:'Evaluate on held-out examples',done:false}]},{id:'compare',name:'Compare base, SFT-small and SFT-large',tasks:[{id:'accuracy',name:'Compare accuracy and format compliance',done:false},{id:'failures',name:'Analyze regressions, saturation and memorization',done:false}]},{id:'report',name:'Write experiment_01_sft.md',tasks:[{id:'write',name:'Document setup, results, limitations and conclusions',done:false}]}]});
+const seedMilestone=()=>({id:'m1',name:'Milestone 1 — Example milestone',objective:'Replace this with what you want to learn or deliver. Import a milestone from Markdown, or edit this one.',archived:false,packages:[{id:'getting-started',name:'Getting started',tasks:[{id:'ex-objective',name:'Write the objective of your milestone',done:false},{id:'ex-package',name:'Add your first real work package',done:false},{id:'ex-focus',name:'Start a focus session on one step',done:false}]}]});
 const blankWeek=()=>({direction:'',completed:'',learned:'',blocked:'',next:'',priorities:[]});
 const blankDay=()=>({outcome:'',findings:'',blocker:'',next:'',notes:'',selected:[],sessions:[],log:[],todos:[]});
-const seed=()=>({version:2,milestones:[seedMilestone()],activeMilestoneId:'m2',activeTaskId:'mask',weeks:{[weekKey()]:{...blankWeek(),priorities:['loss','mask','packing']}},days:{},ideas:[],expanded:['pipeline'],settings:{checkIn:45},running:null});
+const seed=()=>({version:2,milestones:[seedMilestone()],activeMilestoneId:'m1',activeTaskId:'ex-objective',weeks:{},days:{},ideas:[],expanded:['getting-started'],settings:{checkIn:45},running:null});
 const normDay=d=>({...blankDay(),...d,selected:Array.isArray(d.selected)?d.selected:[],sessions:Array.isArray(d.sessions)?d.sessions:[],log:Array.isArray(d.log)?d.log:[],todos:Array.isArray(d.todos)?d.todos:[]});
 function normalize(s){
   if(!s||typeof s!=='object')throw Error('bad');
@@ -401,16 +401,16 @@ function syncView(){const c=gh||{owner:'',repo:'',branch:'main',path:'research-s
 
 /* ---------- milestone import / export ---------- */
 let importText='';
-const MS_TEMPLATE=`# Milestone 3 — RL fine-tuning
-Train a policy with GRPO on top of the SFT model and compare it with the SFT baseline.
+const MS_TEMPLATE=`# Milestone 2 — Reproduce a baseline
+Reproduce the main result of a paper and compare it with my own run.
 
-## Understand GRPO
-- Read the GRPO paper and write a one-page summary
-- Inspect the reward function on 20 examples
+## Understand the method
+- Read the paper and write a one-page summary
+- List the hyperparameters that matter
 
-## Experiment C — GRPO-small
-- [x] Prepare the reward dataset
-- Run and log GRPO-small
+## Experiment A — Baseline run
+- [x] Prepare the dataset
+- Run and log the baseline
 - Evaluate on held-out examples`;
 const stripNum=s=>s.replace(/^\d+(\.\d+)*[.)]?\s+/,'').trim();
 function parseMilestone(text){
@@ -589,14 +589,14 @@ const tagsOf=p=>String(p.tags||'').split(',').map(x=>x.trim()).filter(Boolean);
 const paperMs=id=>Object.values(state.days).reduce((a,d)=>a+d.sessions.filter(s=>s.paperId===id).reduce((b,s)=>b+s.ms,0),0);
 const P=k=>'paper:'+k;
 const safeUrl=u=>/^https?:\/\//i.test(u)?u:'https://'+String(u).replace(/^[a-z]+:\/*/i,'');
-function newPaper(title,url){return {id:uid(),title,url:url||'',authors:'',year:'',tags:'',status:'queue',rating:0,why:'',p1:false,p2:false,p3:false,problem:'',idea:'',method:'',results:'',limits:'',connection:'',summary:'',notes:'',questions:[],added:Date.now(),updated:Date.now()}}
+function newPaper(title,url){return {id:uid(),title,url:url||'',authors:'',year:'',tags:'',status:'queue',rating:0,why:'',p1:false,p2:false,p3:false,problem:'',idea:'',method:'',results:'',limits:'',connection:'',summary:'',notes:'',abstract:'',questions:[],added:Date.now(),updated:Date.now()}}
 const PASSES=[
  {n:1,title:'Pass 1 · Skim',time:'5–10 min',how:'Read the title, abstract and introduction, glance at the section headings and figures, then read the conclusion. Decide if it deserves pass 2.',fields:[['problem','What problem does it solve?'],['idea','What is the main idea or contribution?']]},
  {n:2,title:'Pass 2 · Understand',time:'about 1 hour',how:'Read everything except proofs. Look closely at figures, tables and baselines. Write every unclear term as a question.',fields:[['method','How does the method work?'],['results','What evidence supports it? Datasets, baselines, results.']]},
  {n:3,title:'Pass 3 · Challenge',time:'optional',how:'Re-derive or mentally re-implement the key part. Question every assumption. Only for papers central to your work.',fields:[['limits','Limitations and what I doubt'],['connection','How does it connect to my research?']]}];
 function paperMd(p){const sec=(h,v)=>v&&String(v).trim()?`\n## ${h}\n${String(v).trim()}\n`:'';
   return `# ${p.title}\n${[p.authors,p.year].filter(Boolean).join(' · ')}${p.url?'\n'+p.url:''}\n\nStatus: ${PSTAT[p.status]}${p.rating?' · Relevance: '+p.rating+'/5':''}${tagsOf(p).length?' · Tags: '+tagsOf(p).map(t=>'#'+t).join(' '):''}\nPasses done: ${[1,2,3].filter(n=>p['p'+n]).join(', ')||'none'}\n`
-  +sec('Why I read it',p.why)+PASSES.flatMap(ps=>ps.fields).map(([k,l])=>sec(l,p[k])).join('')+sec('In three sentences',p.summary)
+  +sec('Abstract',p.abstract)+sec('Why I read it',p.why)+PASSES.flatMap(ps=>ps.fields).map(([k,l])=>sec(l,p[k])).join('')+sec('In three sentences',p.summary)
   +(p.questions.length?`\n## Questions\n${p.questions.map(q=>`- [${q.done?'x':' '}] ${q.text}${q.answer?' — '+q.answer:''}`).join('\n')}\n`:'')+sec('Notes',p.notes)}
 function paperRow(p){const oq=p.questions.filter(q=>!q.done).length,ms=paperMs(p.id);
   return `<button class="prow" type="button" data-act="open-paper" data-id="${esc(p.id)}"><span class="ptitle">${esc(p.title)}</span><span class="pmeta">${esc([p.authors,p.year].filter(Boolean).join(' · ')||'No authors yet')}</span>
@@ -605,7 +605,7 @@ function libraryView(){if(openPaper&&paper(openPaper))return paperView(paper(ope
   const all=state.papers||[],counts={queue:0,reading:0,done:0};all.forEach(p=>counts[p.status]=(counts[p.status]||0)+1);
   const q=paperSearch.toLowerCase(),allTags=[...new Set(all.flatMap(tagsOf))].sort();
   const list=all.filter(p=>(paperFilter==='all'||p.status===paperFilter)&&(!paperTag||tagsOf(p).includes(paperTag))&&(!q||(p.title+' '+p.authors+' '+p.tags).toLowerCase().includes(q))).sort((a,b)=>(b.updated||0)-(a.updated||0));
-  return `<div class="stack"><div class="card"><h3>Add a paper</h3><div class="editrow"><input type="text" id="newPaperTitle" placeholder="Paper title"><input type="text" id="newPaperUrl" placeholder="Link (arXiv, DOI, PDF), optional"><button class="btn primary" type="button" data-act="add-paper">Add to reading list</button></div></div>
+  return `<div class="stack"><div class="card"><h3>Add a paper</h3><div class="editrow"><input type="text" id="newPaperTitle" placeholder="Paste an arXiv or DOI link, or type the title"><input type="text" id="newPaperUrl" placeholder="Link, optional"><button class="btn primary" type="button" data-act="add-paper">Add to reading list</button></div></div>
   <div class="card"><div class="row between wrap"><div class="chips">${[['reading','Reading'],['queue','To read'],['done','Read'],['all','All']].map(([k,l])=>`<button class="chip ${paperFilter===k?'active':''}" type="button" data-act="pfilter" data-k="${k}">${l} <span class="num">${k==='all'?all.length:counts[k]||0}</span></button>`).join('')}</div><input type="text" id="paperSearch" value="${esc(paperSearch)}" placeholder="Search title, author, tag…" style="max-width:260px"></div>
   ${allTags.length?`<div class="chips section">${allTags.map(t=>`<button class="chip small ${paperTag===t?'active':''}" type="button" data-act="ptag" data-k="${esc(t)}">#${esc(t)}</button>`).join('')}</div>`:''}
   <div class="plist section">${list.length?list.map(paperRow).join(''):`<div class="empty">${all.length?'No papers in this view. Try another filter.':'Your reading list is empty. Add the paper you are reading now, or one you keep meaning to read.'}</div>`}</div></div></div>`}
@@ -613,13 +613,13 @@ function paperView(p){const r=state.running,mine=r&&r.paperId===p.id,ms=paperMs(
   const ses=Object.entries(state.days).flatMap(([k,d])=>d.sessions.filter(s=>s.paperId===p.id).map(s=>({...s,k}))).sort((a,b)=>b.start-a.start);
   const F=(key,label,rows=3,ph='')=>`<label><span class="label">${label}</span><textarea data-field="paper:${key}" data-pid="${id}" style="min-height:${rows*26}px" placeholder="${esc(ph)}">${esc(p[key])}</textarea></label>`;
   return `<div class="stack"><div class="card"><button class="btn ghost" type="button" data-act="close-paper">← Library</button>
-  <h2 style="margin-top:14px;font-size:24px">${esc(p.title)}</h2><div class="small">${esc([p.authors,p.year].filter(Boolean).join(' · ')||'Add authors and year under Details')}</div>
+  <h2 style="margin-top:14px;font-size:24px">${esc(p.title)}</h2>${fetchingPaper===p.id?'<div class="small" style="color:var(--amber)">Fetching title, authors and abstract…</div>':''}<div class="small">${esc([p.authors,p.year].filter(Boolean).join(' · ')||'Add authors and year under Details')}</div>
   <div class="row wrap section">${p.url?`<a class="btn" href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener">Open paper ↗</a>`:''}
   <select id="paperStatus" data-pid="${id}" style="width:auto" aria-label="Status">${Object.entries(PSTAT).map(([k,l])=>`<option value="${k}" ${p.status===k?'selected':''}>${l}</option>`).join('')}</select>
   <span class="stars" role="group" aria-label="Relevance">${[1,2,3,4,5].map(n=>`<button class="star ${n<=p.rating?'on':''}" type="button" data-act="rate" data-n="${n}" data-id="${id}" title="Relevance ${n}/5" aria-label="Relevance ${n} of 5">★</button>`).join('')}</span>
   <button class="btn ghost" type="button" data-act="export-paper" data-id="${id}">Export as Markdown</button>${delBtn('paper',p.id,'Delete paper')}</div></div>
   <div class="split"><div class="stack">
-    <section class="card">${F('why','Why am I reading this?',2,'e.g. to understand how DPO avoids a reward model, for Milestone 3')}</section>
+    ${p.abstract?`<section class="card"><details ${p.p1?'':'open'}><summary style="cursor:pointer;font-weight:650">Abstract</summary><p class="note" style="color:var(--fg);line-height:1.6">${esc(p.abstract)}</p></details></section>`:''}<section class="card">${F('why','Why am I reading this?',2,'e.g. to understand how DPO avoids a reward model, for Milestone 3')}</section>
     ${PASSES.map(ps=>`<section class="card pass ${p['p'+ps.n]?'done':''}"><label class="check" style="padding-top:0"><input type="checkbox" data-pass="${ps.n}" data-pid="${id}" ${p['p'+ps.n]?'checked':''}><span><b style="color:var(--fg)">${ps.title}</b> <span class="small">· ${ps.time}</span></span></label><p class="small" style="margin-top:0">${ps.how}</p><div class="fields">${ps.fields.map(([k,l])=>F(k,l,3)).join('')}</div></section>`).join('')}
     <section class="card"><div class="fields">${F('summary','Explain it in three sentences',3,'If I can’t say it simply, I don’t understand it yet.')}${F('notes','Free notes, equations, links',5)}</div><p class="hint">Saves as you type.</p></section>
   </div><aside class="stack">
@@ -630,11 +630,34 @@ function paperView(p){const r=state.running,mine=r&&r.paperId===p.id,ms=paperMs(
     <section class="card"><div class="row between"><h3>Questions</h3><span class="pill">${open} open</span></div><p class="small">Unclear terms, doubts, ideas to test.</p>
     ${p.questions.map(q=>`<div class="qrow"><div class="taskline"><label class="check ${q.done?'done':''}"><input type="checkbox" data-qcheck="${esc(q.id)}" data-pid="${id}" ${q.done?'checked':''}><span>${esc(q.text)}</span></label>${delBtn('pq',p.id+'|'+q.id,'Delete question')}</div><input type="text" class="qans" data-field="pq:answer" data-pid="${id}" data-qid="${esc(q.id)}" value="${esc(q.answer||'')}" placeholder="Answer, when you find it"></div>`).join('')}
     <div class="editrow"><input type="text" id="newQ" placeholder="Add a question…"><button class="btn" type="button" data-act="add-q" data-id="${id}">Add</button></div></section>
-    <section class="card"><h3>Details</h3><div class="fields">${[['title','Title'],['authors','Authors'],['year','Year'],['url','Link'],['tags','Tags, comma separated']].map(([k,l])=>`<label><span class="label">${l}</span><input type="text" data-field="paper:${k}" data-pid="${id}" value="${esc(p[k])}"></label>`).join('')}</div><p class="hint">Added on ${esc(prettyDay(dateKey(new Date(p.added))))}.</p></section>
+    <section class="card"><h3>Details</h3><div class="fields">${[['title','Title'],['authors','Authors'],['year','Year'],['url','Link'],['tags','Tags, comma separated']].map(([k,l])=>`<label><span class="label">${l}</span><input type="text" data-field="paper:${k}" data-pid="${id}" value="${esc(p[k])}"></label>`).join('')}</div><button class="btn ghost section" type="button" data-act="fetch-meta" data-id="${id}">Fetch title, authors and abstract</button><p class="hint">Added on ${esc(prettyDay(dateKey(new Date(p.added))))}.</p></section>
   </aside></div></div>`}
 function questionsView(){const ps=(state.papers||[]).filter(p=>p.questions.some(q=>!q.done)),total=ps.reduce((a,p)=>a+p.questions.filter(q=>!q.done).length,0);
   return `<div class="card"><div class="eyebrow">Across all papers</div><h2 style="margin-top:7px">${total} open question${total===1?'':'s'}</h2><p>Questions you noted while reading. Some of them could become your next experiment.</p>
   ${ps.length?ps.map(p=>`<div class="loggroup"><h4><button class="linkbtn" type="button" data-act="open-paper" data-id="${esc(p.id)}">${esc(p.title)}</button></h4>${p.questions.filter(q=>!q.done).map(q=>`<div class="taskline"><label class="check"><input type="checkbox" data-qcheck="${esc(q.id)}" data-pid="${esc(p.id)}"><span>${esc(q.text)}</span></label></div>`).join('')}</div>`).join(''):'<div class="empty section">No open questions. Add questions on a paper’s page while you read.</div>'}</div>`}
+
+/* ---------- paper details from arXiv / DOI ---------- */
+let fetchingPaper=null;
+function paperIds(s){s=String(s||'');const a=s.match(/arxiv\.org\/(?:abs|pdf|html)\/([a-z\-]+(?:\.[a-z]{2})?\/\d{7}|\d{4}\.\d{4,5})/i)||s.match(/^\s*(?:arxiv:\s*)?(\d{4}\.\d{4,5})(?:v\d+)?\s*$/i);const d=s.match(/(10\.\d{4,9}\/[^\s?#]+)/);return {arxiv:a?a[1]:null,doi:!a&&d?d[1].replace(/[.,;]+$/,''):null}}
+const cleanTxt=x=>String(x||'').replace(/\s+/g,' ').trim();
+const authorList=a=>{a=a.filter(Boolean);return a.length>6?a.slice(0,6).join(', ')+' et al.':a.join(', ')};
+async function fetchMeta(src){const {arxiv,doi}=paperIds(src);if(!arxiv&&!doi)return null;const tries=[];
+  if(arxiv)tries.push(async()=>{const r=await fetch('https://export.arxiv.org/api/query?id_list='+encodeURIComponent(arxiv));if(!r.ok)throw 0;const x=new DOMParser().parseFromString(await r.text(),'application/xml'),e=x.getElementsByTagName('entry')[0];if(!e)throw 0;const g=t=>e.getElementsByTagName(t)[0]?.textContent||'',title=cleanTxt(g('title'));if(!title||/^error$/i.test(title))throw 0;
+    return {title,authors:authorList([...e.getElementsByTagName('author')].map(a=>cleanTxt(a.getElementsByTagName('name')[0]?.textContent))),year:g('published').slice(0,4),abstract:cleanTxt(g('summary'))}});
+  tries.push(async()=>{const r=await fetch('https://api.semanticscholar.org/graph/v1/paper/'+encodeURIComponent(arxiv?'arXiv:'+arxiv:'DOI:'+doi)+'?fields=title,authors,year,abstract');if(!r.ok)throw 0;const j=await r.json();if(!j.title)throw 0;
+    return {title:cleanTxt(j.title),authors:authorList((j.authors||[]).map(a=>a.name)),year:j.year?String(j.year):'',abstract:cleanTxt(j.abstract)}});
+  if(doi)tries.push(async()=>{const r=await fetch('https://api.crossref.org/works/'+encodeURIComponent(doi));if(!r.ok)throw 0;const m=(await r.json()).message||{},title=cleanTxt((m.title||[])[0]);if(!title)throw 0;
+    return {title,authors:authorList((m.author||[]).map(a=>cleanTxt((a.given||'')+' '+(a.family||'')))),year:String((((m.issued||{})['date-parts']||[[]])[0]||[])[0]||''),abstract:cleanTxt(String(m.abstract||'').replace(/<[^>]+>/g,' '))}});
+  for(const t of tries){try{return await t()}catch{}}return null}
+async function fillMeta(p,o={}){const src=p.url||p.title,ids=paperIds(src);
+  if(!ids.arxiv&&!ids.doi){if(!o.quiet)notify('Add an arXiv or DOI link under Details to fetch the paper’s details.');return}
+  if(typeof syncView!=='function'){notify('Automatic titles only work in the GitHub version of the page. Type the title under Details.');return}
+  fetchingPaper=p.id;softRender();const m=await fetchMeta(src);fetchingPaper=null;
+  if(!m){notify('Could not reach arXiv or the paper databases. Type the title under Details.');softRender();return}
+  const linkTitle=!p.title||p.title===p.url||/^https?:\/\//i.test(p.title)||/^(arxiv:\s*)?\d{4}\.\d{4,5}/i.test(p.title);
+  if(o.overwrite||linkTitle)p.title=m.title;if(m.authors&&(o.overwrite||!p.authors))p.authors=m.authors;if(m.year&&(o.overwrite||!p.year))p.year=m.year;if(m.abstract&&(o.overwrite||!p.abstract))p.abstract=m.abstract;
+  if(!p.url)p.url=ids.arxiv?'https://arxiv.org/abs/'+ids.arxiv:'https://doi.org/'+ids.doi;
+  commit([P(p.id)]);softRender();notify('Found: '+short(m.title))}
 
 /* ---------- render ---------- */
 function render(){
@@ -750,7 +773,8 @@ function act(a,d={}){const k=dateKey();
   case 'pick-motto':{const i=$('mottoInput');if(i){i.value=d.text;i.focus()}break}
   case 'save-motto':{const v=$('mottoInput')?.value.trim();if(v){state.settings.motto=v;commit(['main'])}edit=null;render();break}
   case 'quotes-builtin':delete state.settings.fileQuotes;delete state.settings.quotesSource;quoteOverride=null;commit(['main']);render();notify('Back to the built-in quotes.');break;
-  case 'add-paper':{const ti=$('newPaperTitle')?.value.trim(),u=$('newPaperUrl')?.value.trim();if(!ti&&!u){notify('Add a title or a link first.');break}const p=newPaper(ti||u,u);state.papers.unshift(p);openPaper=p.id;logAuto('Added paper · '+short(p.title));commit([P(p.id)]);render();window.scrollTo(0,0);break}
+  case 'add-paper':{let ti=$('newPaperTitle')?.value.trim(),u=$('newPaperUrl')?.value.trim();if(!ti&&!u){notify('Add a title or a link first.');break}const ti2=paperIds(ti);if(ti&&!u&&(/^https?:\/\//i.test(ti)||ti2.arxiv||ti2.doi)){u=/^https?:\/\//i.test(ti)?ti:ti2.arxiv?'https://arxiv.org/abs/'+ti2.arxiv:'https://doi.org/'+ti2.doi;ti=''}const p=newPaper(ti||u,u);state.papers.unshift(p);openPaper=p.id;logAuto('Added paper · '+short(p.title));commit([P(p.id)]);render();window.scrollTo(0,0);const ids=paperIds(u||ti);if(ids.arxiv||ids.doi)fillMeta(p,{quiet:true});break}
+  case 'fetch-meta':{const p=paper(d.id);if(p)fillMeta(p,{overwrite:true});break}
   case 'pfilter':paperFilter=d.k;render();break;
   case 'ptag':paperTag=paperTag===d.k?'':d.k;render();break;
   case 'open-paper':tab='library';openPaper=d.id;edit=null;confirmDel=null;render();window.scrollTo(0,0);break;
