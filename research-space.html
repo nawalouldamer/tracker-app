@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Space</title>
+<style>
+/* Layout: same calm single-column workspace as v1 — header, tab bar, one screen; two-column split collapses on phones. */
+:root{--bg:#ffffff;--fg:#1a1a1a;--surface:#f8f9fa;--surface2:#eff0f2;--field:#ffffff;--border:#e0e1e4;--muted:#80838a;--accent:#000000;--on-accent:#ffffff;--green:#4caf50;--amber:#b7791f;--amber-bg:#fdf6e7;
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121315;--fg:#ececee;--surface:#1a1b1e;--surface2:#25272b;--field:#141518;--border:#303237;--muted:#9a9ca3;--accent:#f2f2f3;--on-accent:#121315;--green:#5fbf63;--amber:#e3b04b;--amber-bg:#2b2416;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121315;--fg:#ececee;--surface:#1a1b1e;--surface2:#25272b;--field:#141518;--border:#303237;--muted:#9a9ca3;--accent:#f2f2f3;--on-accent:#121315;--green:#5fbf63;--amber:#e3b04b;--amber-bg:#2b2416;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg)}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,label.btn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:1120px;margin:auto;padding-block:30px 80px;padding-inline:22px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.eyebrow{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.header h1{font-size:28px;letter-spacing:-.035em;margin:6px 0}
+.sub{color:var(--muted);font-size:14px;line-height:1.5}
+.nav{display:flex;gap:5px;padding:5px;border:1px solid var(--border);border-radius:13px;background:var(--surface);margin-bottom:22px;overflow-x:auto}
+.nav button{flex:1;padding:11px 12px;border:0;border-radius:9px;background:none;color:var(--muted);white-space:nowrap}
+.nav button.active{background:var(--surface2);color:var(--fg);font-weight:650}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:22px;min-width:0}
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:18px}
+.stack{display:grid;gap:18px;align-content:start;min-width:0}
+h2{font-size:19px;margin:0 0 9px;letter-spacing:-.02em;text-wrap:balance}h3{font-size:16px;margin:0 0 8px}
+p{margin:8px 0;color:var(--muted);line-height:1.55}
+.small{font-size:13px;color:var(--muted)}.hint{font-size:12px;color:var(--muted)}
+.label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 0 8px}
+input[type=text],input[type=date],input[type=number],textarea,select{width:100%;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--fg);padding:10px 12px}
+textarea{resize:vertical;min-height:84px;line-height:1.5}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:1px}
+.btn{border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--fg);padding:9px 13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.ghost{background:transparent}.danger{color:#c0392b}
+.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.wrap{flex-wrap:wrap}.grow{flex:1;min-width:0}
+.check{display:flex;align-items:flex-start;gap:10px;padding:8px 0;line-height:1.4;flex:1;min-width:0}
+.check span{overflow-wrap:anywhere}.stepno{color:var(--muted);font-weight:650;font-variant-numeric:tabular-nums;margin-right:7px}.check.done span{text-decoration:line-through;color:var(--muted)}
+.progress{height:7px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin:10px 0}
+.progress>div{height:100%;background:var(--green);transition:width .2s}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:30px;padding:5px 10px;font-size:12px;color:var(--muted);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}.dot.ok{background:var(--green)}.dot.warn{background:var(--amber)}
+.section{margin-top:18px}.divider{border-top:1px solid var(--border);margin:20px 0}
+.item{padding:15px;border:1px solid var(--border);border-radius:12px;margin-top:10px;background:var(--bg)}
+.itemhead{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.toggle{text-align:left;flex:1;color:var(--fg);font-weight:700;border:0;background:transparent;padding:0;min-width:0}
+.tasks{padding-left:11px;border-left:1px solid var(--border);margin:12px 0 0 6px}
+.taskline{display:flex;align-items:center;gap:6px;min-width:0}
+.tasktime{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.iconbtn{border:0;background:none;color:var(--muted);padding:5px 7px;border-radius:6px;flex-shrink:0}
+.iconbtn:hover{color:var(--fg);background:var(--surface2)}
+.editrow{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}.editrow input,.editrow select{flex:1;min-width:140px}
+.confirm{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
+.empty{padding:16px;border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:14px;line-height:1.5}
+.idea{padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}.idea:last-child{border:0}
+.note{white-space:pre-wrap;overflow-wrap:anywhere}
+.metric,.num{font-variant-numeric:tabular-nums}
+.focus{background:var(--bg);border:1px solid var(--border);padding:16px;border-radius:12px;margin-top:14px;display:grid;gap:12px}
+.focusClock{font-size:34px;letter-spacing:-.04em;font-weight:720;font-variant-numeric:tabular-nums;line-height:1}
+.checkin{background:var(--amber-bg);border:1px solid var(--amber);border-radius:10px;padding:12px 14px;display:grid;gap:10px}
+.checkin strong{color:var(--fg)}
+.fields{display:grid;gap:14px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat{border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--bg)}
+.stat b{display:block;font-size:22px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:4px}
+.bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end;height:170px;margin-top:14px}
+.barcol{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0}
+.bar{width:100%;max-width:46px;background:var(--surface2);border:1px solid var(--border);border-radius:7px 7px 3px 3px;position:relative;min-height:3px}
+.bar.has{background:var(--green);border-color:var(--green)}.bar.today{outline:2px solid var(--accent);outline-offset:2px}
+.barval{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.barlbl{font-size:12px;color:var(--muted);text-align:center;line-height:1.3}
+.hbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:7px 0}
+.hbar .track{grid-column:1/-1;height:6px;background:var(--surface2);border-radius:10px;overflow:hidden}
+.hbar .track div{height:100%;background:var(--green);border-radius:10px}
+.hbar .name{font-size:14px;overflow-wrap:anywhere}
+.loggroup{margin-top:14px}.loggroup h4{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:650}
+.logline{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.logline:last-child{border:0}.logline .when{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;padding-top:1px}
+.daylist{display:grid;gap:4px;max-height:360px;overflow:auto;margin-top:10px}
+.dayitem{text-align:left;border:1px solid transparent;background:none;border-radius:10px;padding:9px 10px;display:grid;gap:2px}
+.dayitem:hover{background:var(--surface2)}.dayitem.active{border-color:var(--border);background:var(--bg)}
+.dayitem .d{font-weight:650;font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.dayitem .s{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.weeknav{display:flex;align-items:center;gap:6px}
+.mstabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.quick{display:flex;flex-wrap:wrap;gap:8px}.timeline{display:grid}
+.tl{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}.tl:last-child{border:0}
+.tl .when{font-variant-numeric:tabular-nums;color:var(--fg);font-weight:600;width:44px;flex-shrink:0;padding-top:1px}
+.mark{display:inline-block;width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0;background:var(--accent)}
+.tl.auto .mark,.mark.auto{background:transparent;border:1.5px solid var(--muted)}.tl.auto .grow,.tl.auto .when{color:var(--muted);font-weight:400}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.legend>span{display:inline-flex;align-items:center;gap:6px}.legend .mark{margin-top:0}
+.wtable{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}.wtable th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;padding:6px 6px 6px 0;border-bottom:1px solid var(--border)}
+.wtable td{padding:7px 6px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap}.wtable tr.cur td{font-weight:650}
+.linkbtn{border:0;background:none;padding:0;color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--border)}.linkbtn:disabled{color:var(--muted);text-decoration:none;cursor:default}
+.btn:disabled{opacity:.4;cursor:default}
+.modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--border);border-radius:12px;margin-bottom:12px;background:var(--bg);max-width:100%}
+.modes button{border:0;background:none;padding:9px 20px;border-radius:9px;font-weight:650;color:var(--muted)}.modes button.active{background:var(--accent);color:var(--on-accent)}
+.wtable tfoot td{font-weight:650;border-bottom:0;border-top:1.5px solid var(--border);color:var(--muted)}
+.hero{padding:8px 0 28px}.mottorow{display:flex;align-items:flex-start;gap:6px}.mottorow .iconbtn{margin-top:8px;opacity:.6}.mottorow .iconbtn:hover{opacity:1}
+.motto{font-family:Georgia,'Iowan Old Style','Times New Roman',serif;font-size:46px;line-height:1.12;letter-spacing:-.02em;font-weight:600;margin:0;max-width:24ch;text-wrap:balance}
+.heroline{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-top:14px}.heroline .bigdate2{margin:0}.bigdate{font-size:46px;font-weight:760;letter-spacing:-.045em;line-height:1.05}.bigdate2{font-size:20px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+.qitem{margin:0;padding:14px 0;border-bottom:1px solid var(--border)}.qitem:last-of-type{border-bottom:0;padding-bottom:4px}.qcat{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:650}
+.quote blockquote{margin:6px 0 6px;font-size:17.5px;line-height:1.45;letter-spacing:-.01em;font-family:Georgia,'Iowan Old Style','Times New Roman',serif;text-wrap:pretty}
+@media(max-width:760px){.motto{font-size:32px}.bigdate{font-size:36px}.bigdate2{font-size:17px}}
+#titleBlock[hidden]+div{margin-left:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--border);background:var(--bg);border-radius:30px;padding:6px 12px;font-size:13px;color:var(--muted);font-weight:600}.chip.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.chip.small{padding:4px 10px;font-size:12px}
+.plist{display:grid;gap:8px}.prow{display:grid;gap:4px;text-align:left;border:1px solid var(--border);background:var(--bg);border-radius:12px;padding:13px 15px;width:100%;color:var(--fg)}.prow:hover{border-color:var(--accent)}
+.ptitle{font-weight:680;font-size:15px;line-height:1.35;overflow-wrap:anywhere}.pmeta{font-size:13px;color:var(--muted)}.pinfo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+.passes{display:inline-flex;gap:3px}.passes i{font-style:normal;font-size:11px;width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:inline-grid;place-items:center;color:var(--muted)}.passes i.on{background:var(--green);border-color:var(--green);color:#fff}
+.tag{font-size:12px;color:var(--muted)}.stars{display:inline-flex}.star{border:0;background:none;font-size:20px;color:var(--border);padding:2px 3px;line-height:1}.star.on{color:var(--amber)}
+.pass.done{border-color:var(--green)}.qrow{padding:4px 0 10px;border-bottom:1px solid var(--border)}.qrow:last-of-type{border-bottom:0}
+input.qans{font-size:13px;padding:7px 10px;margin-left:27px;width:calc(100% - 27px)}a.btn{text-decoration:none}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;left:auto;background:var(--accent);color:var(--on-accent);padding:10px 14px;border-radius:10px;max-width:min(340px,calc(100vw - 40px));font-size:14px;z-index:5}
+.hidden{display:none!important}[hidden]{display:none!important}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;background:var(--surface2);padding:1px 5px;border-radius:5px}a{color:var(--fg)}
+@media(max-width:760px){.split{grid-template-columns:1fr}.app{padding-block:20px 60px;padding-inline:16px}.header h1{font-size:24px}.card{padding:17px}.nav button{font-size:13px;padding:10px 9px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.bars{height:140px;gap:5px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+
+<main class="app">
+<header class="header">
+  <div id="titleBlock"><div class="eyebrow" id="eyebrow" hidden></div><h1 id="pageTitle">Research</h1><div class="sub" id="sub">One question at a time. Evidence over hours.</div></div>
+  <div class="row wrap">
+    <button type="button" class="pill" id="syncStatus" style="background:none;cursor:pointer"><span class="dot" id="syncDot"></span><span id="syncText">Not synced · click to connect</span></button>
+    <button class="btn ghost" id="export" type="button">Export backup</button>
+    <label class="btn ghost" for="import">Import</label><input type="file" id="import" class="hidden" accept="application/json">
+  </div>
+</header>
+<div class="modes" aria-label="Area"><button type="button" data-mode="home">Home</button><button type="button" data-mode="research">Research</button><button type="button" data-mode="papers">Papers</button><button type="button" data-mode="log">Day Log</button></div>
+<nav class="nav" id="nav" aria-label="Sections"></nav>
+<div id="screen"></div>
+</main>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+(()=>{'use strict';
+const LS='research-space-v2', CID=Math.random().toString(36).slice(2);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const pad=n=>String(n).padStart(2,'0');
+const dateKey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseKey=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mondayOf=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+function weekKey(d=new Date()){let t=new Date(d.getFullYear(),d.getMonth(),d.getDate());t.setDate(t.getDate()+4-(t.getDay()||7));let y=t.getFullYear(),a=new Date(y,0,1);return y+'-W'+pad(Math.ceil((((t-a)/86400000)+1)/7))}
+const DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const prettyDay=k=>parseKey(k).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+const hm=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes())};
+function dur(ms){const m=Math.round(Math.max(0,ms)/60000),h=Math.floor(m/60);return h?h+'h '+pad(m%60)+'m':m+'m'}
+function clock(ms){const s=Math.floor(Math.max(0,ms)/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)}
+
+/* ---------- data ---------- */
+const seedMilestone=()=>({id:'m2',name:'Milestone 2 — Supervised Fine-Tuning Baseline',objective:'Learn the complete SFT pipeline before RL. Train and evaluate the model on the same task.',archived:false,packages:[{id:'pipeline',name:'Understand the SFT pipeline',tasks:[{id:'loss',name:'Inspect causal LM loss and teacher forcing',done:false},{id:'mask',name:'Verify loss masking on a training example',done:false},{id:'packing',name:'Understand packing and tokenized batches',done:false},{id:'schedule',name:'Understand epochs, LR, overfitting and leakage',done:false},{id:'lora',name:'Understand LoRA, gradient accumulation and effective batch size',done:false}]},{id:'small',name:'Experiment A — SFT-small',tasks:[{id:'train-small',name:'Run and log SFT-small',done:false},{id:'eval-small',name:'Evaluate on held-out examples',done:false}]},{id:'large',name:'Experiment B — SFT-large',tasks:[{id:'train-large',name:'Run SFT-large with comparable settings',done:false},{id:'eval-large',name:'Evaluate on held-out examples',done:false}]},{id:'compare',name:'Compare base, SFT-small and SFT-large',tasks:[{id:'accuracy',name:'Compare accuracy and format compliance',done:false},{id:'failures',name:'Analyze regressions, saturation and memorization',done:false}]},{id:'report',name:'Write experiment_01_sft.md',tasks:[{id:'write',name:'Document setup, results, limitations and conclusions',done:false}]}]});
+const blankWeek=()=>({direction:'',completed:'',learned:'',blocked:'',next:'',priorities:[]});
+const blankDay=()=>({outcome:'',findings:'',blocker:'',next:'',notes:'',selected:[],sessions:[],log:[],todos:[]});
+const seed=()=>({version:2,milestones:[seedMilestone()],activeMilestoneId:'m2',activeTaskId:'mask',weeks:{[weekKey()]:{...blankWeek(),priorities:['loss','mask','packing']}},days:{},ideas:[],expanded:['pipeline'],settings:{checkIn:45},running:null});
+const normDay=d=>({...blankDay(),...d,selected:Array.isArray(d.selected)?d.selected:[],sessions:Array.isArray(d.sessions)?d.sessions:[],log:Array.isArray(d.log)?d.log:[],todos:Array.isArray(d.todos)?d.todos:[]});
+function normalize(s){
+  if(!s||typeof s!=='object')throw Error('bad');
+  if(s.version===1){ // convert a v1 backup
+    const wk=weekKey(),weeks={};Object.entries(s.weeks||{}).forEach(([k,w])=>weeks[k]={...blankWeek(),...w,priorities:[]});
+    weeks[wk]={...(weeks[wk]||blankWeek()),priorities:s.weeklyPriorityIds||[]};
+    const m={id:'m-'+uid(),archived:false,...s.milestone};
+    s={version:2,milestones:[m],activeMilestoneId:m.id,activeTaskId:s.activeTaskId,weeks,days:s.days||{},ideas:s.ideas||[],expanded:s.expanded||[],settings:{checkIn:45},running:null};
+  }
+  if(s.version!==2||!Array.isArray(s.milestones)||!s.milestones.length)throw Error('bad');
+  s.weeks=s.weeks||{};Object.keys(s.weeks).forEach(k=>s.weeks[k]={...blankWeek(),...s.weeks[k]});
+  s.days=s.days||{};Object.keys(s.days).forEach(k=>s.days[k]=normDay(s.days[k]));
+  s.ideas=s.ideas||[];s.papers=Array.isArray(s.papers)?s.papers:[];s.deletedPapers=s.deletedPapers||[];s.papers.forEach(p=>{p.questions=Array.isArray(p.questions)?p.questions:[]});s.expanded=s.expanded||[];s.settings={checkIn:45,...(s.settings||{})};s.running=s.running||null;
+  if(!s.milestones.find(m=>m.id===s.activeMilestoneId))s.activeMilestoneId=s.milestones[0].id;
+  return s;
+}
+let state;try{state=normalize(JSON.parse(localStorage.getItem(LS)))}catch{state=seed()}
+
+/* ---------- lookups ---------- */
+const activeMs=()=>state.milestones.find(m=>m.id===state.activeMilestoneId)||state.milestones[0];
+const tasksOf=m=>m.packages.flatMap((p,pi)=>p.tasks.map((t,ti)=>({...t,num:(pi+1)+'.'+(ti+1),packageId:p.id,packageName:p.name,milestoneId:m.id,milestoneName:m.name})));
+const allTasks=()=>state.milestones.flatMap(tasksOf);
+const activeTasks=()=>tasksOf(activeMs());
+const task=id=>allTasks().find(t=>t.id===id);
+const rawTask=id=>{for(const m of state.milestones)for(const p of m.packages){const t=p.tasks.find(t=>t.id===id);if(t)return t}};
+const day=k=>state.days[k]||(state.days[k]=blankDay());
+const week=k=>state.weeks[k]||(state.weeks[k]=blankWeek());
+const dayHas=d=>!!d&&(d.outcome||d.findings||d.blocker||d.next||d.notes||d.sessions.length||d.log.length||d.todos.length);
+const dayMs=k=>(state.days[k]?.sessions||[]).reduce((a,s)=>a+s.ms,0);
+const weekDays=off=>{const m=addDays(mondayOf(new Date()),off*7);return [...Array(7)].map((_,i)=>dateKey(addDays(m,i)))};
+const taskMs=id=>Object.values(state.days).reduce((a,d)=>a+d.sessions.filter(s=>s.taskId===id).reduce((b,s)=>b+s.ms,0),0);
+const progress=ts=>ts.length?Math.round(ts.filter(t=>t.done).length/ts.length*100):0;
+
+/* ---------- ui state ---------- */
+let tab='today', weekOff=0, journalDate=dateKey(), logDay=null;
+const modeFromHash=()=>({'#log':'log','#research':'research','#papers':'papers'})[location.hash]||'home';let mode=modeFromHash();const lastTab={home:'home',research:'today',papers:'library',log:'daylog'};tab=lastTab[mode];
+let edit=null, confirmDel=null, ackCount=0, chimed=-1, audio=null, pendingRender=false;
+
+/* ---------- saving & GitHub sync ---------- */
+const CFG='research-space-github', DIRTY=LS+':dirty';
+let gh=(()=>{try{return JSON.parse(localStorage.getItem(CFG))||null}catch{return null}})();
+let ghSha=null, dirty=(()=>{try{return localStorage.getItem(DIRTY)==='1'}catch{return false}})(), pushTimer=0, busy=false, lastSync=0, repoPrivate=null, syncErr='';
+function setSync(mode){const t={local:['Not synced · click to connect',''],pending:['Changes waiting to sync','warn'],syncing:['Syncing…','warn'],synced:['Synced to GitHub','ok'],offline:['Sync failed · saved on this device','warn']}[mode];$('syncText').textContent=t[0];$('syncDot').className='dot '+t[1]}
+function setDirty(v){dirty=v;try{localStorage.setItem(DIRTY,v?'1':'0')}catch{}}
+function localSave(){try{localStorage.setItem(LS,JSON.stringify(state))}catch{}}
+function commit(paths){const now=Date.now();paths.forEach(p=>{if(p==='main')state.updated=now;else if(p.startsWith('paper:')){const x=paper(p.slice(6));if(x)x.updated=now}else if(state.days[p.slice(4)])state.days[p.slice(4)].updated=now});localSave();setDirty(true);if(gh){setSync('pending');schedule()}}
+const D=k=>'day:'+k;
+function schedule(ms=15000){clearTimeout(pushTimer);pushTimer=setTimeout(push,ms)}
+const b64e=s=>{const b=new TextEncoder().encode(s);let bin='';for(let i=0;i<b.length;i+=0x8000)bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(bin)};
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+const api=(p,opt={})=>fetch('https://api.github.com/repos/'+encodeURIComponent(gh.owner)+'/'+encodeURIComponent(gh.repo)+p,{cache:'no-store',...opt,headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+gh.token,'X-GitHub-Api-Version':'2022-11-28',...(opt.body?{'Content-Type':'application/json'}:{})}});
+const filePath=()=>'/contents/'+gh.path.split('/').map(encodeURIComponent).join('/');
+async function ghErr(r){const m={401:'GitHub rejected the token. It may have expired or been pasted incorrectly.',403:'The token cannot write to this repo. It needs Contents: Read and write.',404:'Repo, branch or file not found, or the token cannot see this repo.'}[r.status];let extra='';try{extra=(await r.json()).message||''}catch{}return Error(m||('GitHub error '+r.status+(extra?': '+extra:'')))}
+async function pull(){const r=await api(filePath()+'?ref='+encodeURIComponent(gh.branch));if(r.status===404){ghSha=null;return null}if(!r.ok)throw await ghErr(r);const j=await r.json();ghSha=j.sha;if(!j.content)throw Error('The data file is over 1 MB. Export a backup and ask for a split-file version.');return normalize(JSON.parse(b64d(j.content)))}
+function merge(a,b){const newer=(b.updated||0)>(a.updated||0)?b:a,older=newer===a?b:a,out=clone(newer);
+  const ids=new Set(out.ideas.map(i=>i.id));older.ideas.forEach(i=>{if(!ids.has(i.id))out.ideas.push(i)});
+  out.days={};new Set([...Object.keys(a.days),...Object.keys(b.days)]).forEach(k=>{const x=a.days[k],y=b.days[k];if(!x||!y){out.days[k]=clone(x||y);return}
+    const n=(y.updated||0)>(x.updated||0)?y:x,o=n===x?y:x,d=clone(n),s=new Set(d.sessions.map(q=>q.id));o.sessions.forEach(q=>{if(!s.has(q.id))d.sessions.push(clone(q))});d.sessions.sort((p,q)=>p.start-q.start);const li=new Set(d.log.map(q=>q.id));o.log.forEach(q=>{if(!li.has(q.id))d.log.push(clone(q))});const ti=new Set(d.todos.map(q=>q.id));o.todos.forEach(q=>{if(!ti.has(q.id))d.todos.push(clone(q))});out.days[k]=d});
+  const del=new Set([...(a.deletedPapers||[]),...(b.deletedPapers||[])]),pm={};[...(older.papers||[]),...(newer.papers||[])].forEach(p=>{const e=pm[p.id];if(!e||(p.updated||0)>=(e.updated||0))pm[p.id]=clone(p)});out.papers=Object.values(pm).filter(p=>!del.has(p.id)).sort((x,y)=>(y.added||0)-(x.added||0));out.deletedPapers=[...del];
+  return normalize(out)}
+async function push(keepalive=false){if(!gh||busy)return;busy=true;clearTimeout(pushTimer);setSync('syncing');
+  try{for(let i=0;i<3;i++){const sent=JSON.stringify(state,null,1),body={message:'Research Space update '+dateKey()+' '+hm(Date.now()),content:b64e(sent),branch:gh.branch};if(ghSha)body.sha=ghSha;
+      const r=await api(filePath(),{method:'PUT',body:JSON.stringify(body),keepalive:keepalive&&body.content.length<60000});
+      if(r.ok){const j=await r.json();ghSha=j.content.sha;if(JSON.stringify(state,null,1)===sent)setDirty(false);lastSync=Date.now();syncErr='';setSync(dirty?'pending':'synced');break}
+      if(r.status===409||r.status===422){const remote=await pull();if(remote){state=merge(state,remote);syncAck();localSave();softRender()}if(i===2)throw await ghErr(r);continue}
+      throw await ghErr(r)}}
+  catch(e){syncErr=e.message||'Could not reach GitHub.';setSync('offline')}
+  busy=false;if(tab==='sync')softRender();if(dirty&&!syncErr)schedule()}
+async function refresh(){if(!gh||busy||dirty)return;busy=true;try{const remote=await pull();if(remote&&(remote.updated||0)!==(state.updated||0)||remote&&JSON.stringify(remote.days)!==JSON.stringify(state.days)||remote&&JSON.stringify(remote.papers)!==JSON.stringify(state.papers)){state=remote;syncAck();localSave();softRender()}lastSync=Date.now();syncErr='';setSync('synced')}catch(e){syncErr=e.message;setSync('offline')}busy=false}
+async function initialSync(){if(!gh){setSync('local');return}setSync('syncing');busy=true;let remote;
+  try{remote=await pull()}catch(e){busy=false;syncErr=e.message;setSync('offline');return}
+  if(remote){state=dirty?merge(state,remote):remote;syncAck();localSave();render()}
+  busy=false;lastSync=Date.now();syncErr='';if(dirty||!remote){setDirty(true);push()}else setSync('synced');loadRepoQuotes()}
+async function loadRepoQuotes(){if(!gh)return;try{const r=await api('/contents/quotes.md?ref='+encodeURIComponent(gh.branch));if(!r.ok)return;const j=await r.json();if(!j.content)return;const q=parseQuotes(b64d(j.content));if(!q.length)return;const src='quotes.md in your repo';if(JSON.stringify(q)!==JSON.stringify(state.settings.fileQuotes||null)||state.settings.quotesSource!==src){state.settings.fileQuotes=q;state.settings.quotesSource=src;quoteOverride=null;commit(['main']);if(tab==='home')softRender()}}catch{}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(dirty)push()}else refresh()});
+window.addEventListener('pagehide',()=>{if(dirty)push(true)});
+setInterval(()=>{if(!document.hidden)refresh()},90000);
+async function connectGh(){const v=id=>($(id)?.value||'').trim();
+  const cfg={owner:v('ghOwner'),repo:v('ghRepo').replace(/\.git$/,''),branch:v('ghBranch')||'main',path:v('ghPath')||'research-space-data.json',token:v('ghToken')||gh?.token||''};
+  if(!cfg.owner||!cfg.repo||!cfg.token){notify('Fill in owner, repository and token.');return}
+  const prev=gh;gh=cfg;syncErr='';
+  try{const r=await api('');if(!r.ok)throw await ghErr(r);const j=await r.json();repoPrivate=!!j.private;
+    if(!j.permissions?.push&&j.permissions)throw Error('This token can read the repo but cannot write to it. Give it Contents: Read and write.')}
+  catch(e){gh=prev;syncErr=e.message||'Could not reach GitHub.';render();return}
+  try{localStorage.setItem(CFG,JSON.stringify(gh))}catch{}
+  ghSha=null;setDirty(true);await initialSync();tab='sync';render();notify(repoPrivate?'Connected. Your data now syncs through GitHub.':'Connected, but the repo is public. Make it private.')}
+
+
+function notify(msg){const el=$('toast');el.textContent=msg;el.hidden=false;clearTimeout(notify.t);notify.t=setTimeout(()=>el.hidden=true,2800)}
+function typing(){const a=document.activeElement;return a&&$('screen').contains(a)&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&/text|number|date/.test(a.type)))}
+function softRender(){if(typing())pendingRender=true;else render()}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(pendingRender&&!typing()){pendingRender=false;render()}},0));
+
+/* ---------- small render helpers ---------- */
+const taskCheck=(t,num=t.num)=>`<label class="check ${t.done?'done':''}"><input type="checkbox" data-check="${esc(t.id)}" ${t.done?'checked':''}><span>${num?`<b class="stepno">${num}</b>`:''}${esc(t.name)}</span></label>`;
+const byOrder=(a,b)=>{const [a1,a2]=a.num.split('.').map(Number),[b1,b2]=b.num.split('.').map(Number);return a1-b1||a2-b2};
+const taskOptions=(list,sel,blank)=>(blank?`<option value="">${blank}</option>`:'')+list.map(t=>`<option value="${esc(t.id)}" ${t.id===sel?'selected':''}>${esc(t.num+'  '+t.name+'  ('+t.packageName+')')}</option>`).join('');
+const delBtn=(kind,id,title='Delete')=>confirmDel&&confirmDel.kind===kind&&confirmDel.id===id
+  ?`<span class="confirm">Delete?<button class="btn danger" type="button" data-act="del-yes">Yes</button><button class="btn ghost" type="button" data-act="del-no">No</button></span>`
+  :`<button class="iconbtn" type="button" data-act="ask-del" data-kind="${kind}" data-id="${esc(id)}" title="${title}" aria-label="${title}">×</button>`;
+const isEditing=(kind,id)=>edit&&edit.kind===kind&&edit.id===id;
+const editField=(val)=>`<div class="editrow grow" style="margin:0"><input type="text" id="editInput" value="${esc(val)}"><button class="btn primary" type="button" data-act="save-edit">Save</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div>`;
+const weekLabel=off=>off===0?'This week':off===-1?'Last week':off===1?'Next week':weekKey(addDays(mondayOf(new Date()),off*7));
+const weekNav=()=>`<div class="weeknav"><button class="btn ghost" type="button" data-act="wk-prev" aria-label="Previous week">‹</button><span class="pill num" style="min-width:96px;justify-content:center">${weekLabel(weekOff)}</span><button class="btn ghost" type="button" data-act="wk-next" aria-label="Next week">›</button>${weekOff?'<button class="btn ghost" type="button" data-act="wk-now">Today</button>':''}</div>`;
+
+/* ---------- TODAY ---------- */
+function focusPanel(){
+  const r=state.running;
+  if(!r) return `<div class="row wrap section"><button class="btn primary" type="button" data-act="start">Start focus session</button>
+    <label class="row small" for="checkIn" style="gap:8px">Check in every <select id="checkIn" style="width:auto">${[0,25,45,60,90].map(m=>`<option value="${m}" ${state.settings.checkIn===m?'selected':''}>${m?m+' min':'never'}</option>`).join('')}</select></label></div>`;
+  const t=task(r.taskId),el=Date.now()-r.start,iv=state.settings.checkIn*60000,due=iv?Math.floor(el/iv):0;
+  return `<div class="focus"><div class="row between wrap"><div><div class="small">Focus session · started ${hm(r.start)}</div><div class="small" style="color:var(--fg);margin-top:3px">${esc(r.paperId?'Reading · '+(paper(r.paperId)?.title||'paper'):t?t.name:'No task selected')}</div></div><div class="focusClock" id="focusClock">${clock(el)}</div></div>
+  ${iv&&due>ackCount?`<div class="checkin"><div><strong>${dur(due*iv)} in.</strong> <span class="small">Natural checkpoint: keep going, change approach, or stop? Drink some water either way.</span></div><div class="row wrap"><button class="btn" type="button" data-act="ack">Keep going</button><button class="btn" type="button" data-act="end">Stop and log it</button></div></div>`:''}
+  <label><span class="label">What did this session produce? (optional)</span><textarea id="runNote" data-field="run:note" style="min-height:60px" placeholder="e.g. confirmed labels are -100 on prompt tokens">${esc(r.note||'')}</textarea></label>
+  <div class="row wrap"><button class="btn primary" type="button" data-act="end">End and log session</button><button class="btn ghost" type="button" data-act="discard">Discard</button></div></div>`;
+}
+function today(){
+  const k=dateKey(),d=day(k),act=task(state.activeTaskId),sel=d.selected.map(task).filter(Boolean).sort(byOrder),ses=d.sessions;
+  return `<div class="split"><section class="stack"><div class="card">
+  <div class="eyebrow">Today's research question</div><h2 style="margin-top:9px">${esc(d.outcome||act?.name||'Choose a question to investigate')}</h2>
+  <div class="small">${esc(activeMs().name)}${act?' · '+esc(act.packageName):''}</div>
+  <div class="section"><label class="label" for="outcome">Set or refine your focus question</label><textarea id="outcome" data-field="day:outcome" data-date="${k}" placeholder="What exactly do I want to discover or finish?">${esc(d.outcome)}</textarea></div>
+  <div class="section"><label class="label" for="activeTask">Current task from your research map</label><select id="activeTask">${taskOptions(activeTasks(),state.activeTaskId)}</select></div>
+  ${focusPanel()}
+  <div class="divider"></div>
+  <div class="row between"><h3>Today's selected steps</h3><span class="pill metric">${sel.filter(t=>t.done).length}/${sel.length}</span></div>
+  ${sel.length?sel.map(t=>`<div class="taskline">${taskCheck(t)}<button class="iconbtn" type="button" data-act="unselect" data-id="${esc(t.id)}" title="Remove from today" aria-label="Remove from today">×</button></div>`).join(''):'<div class="empty">Pick one or two steps below. No need to plan your entire day.</div>'}
+  <div class="section"><label class="label" for="addToday">Pull a step from your milestone</label><select id="addToday">${taskOptions(activeTasks().filter(t=>!d.selected.includes(t.id)&&!t.done),'','Choose a task…')}</select></div>
+  </div>
+  <div class="card"><div class="row between"><h3>Time today</h3><span class="pill metric">${dur(dayMs(k))}</span></div>
+  ${ses.length?ses.slice().reverse().map(s=>`<div class="logline"><span class="when">${hm(s.start)}–${hm(s.end)}</span><span class="grow">${esc(sesLabel(s))}${s.note?`<div class="small note">${esc(s.note)}</div>`:''}</span><span class="tasktime">${dur(s.ms)}</span></div>`).join(''):'<div class="empty">No sessions logged yet. Start a focus session above, or add time later in the Time tab.</div>'}
+  </div></section>
+  <aside class="stack"><section class="card"><h3>Capture a tangent</h3><p class="small">Save the idea without switching topics.</p><textarea id="idea" placeholder="An interesting question for later…"></textarea><button class="btn section" type="button" data-act="park" data-src="idea">Park this idea</button><p class="hint">${state.ideas.length} ideas parked</p></section>
+  <section class="card"><h3>Before you stop</h3><div class="fields">
+  <label><span class="label">What did you learn?</span><textarea data-field="day:findings" data-date="${k}">${esc(d.findings)}</textarea></label>
+  <label><span class="label">What is blocking you?</span><textarea data-field="day:blocker" data-date="${k}">${esc(d.blocker)}</textarea></label>
+  <label><span class="label">Exact next action</span><textarea data-field="day:next" data-date="${k}" placeholder="Tomorrow, start by…">${esc(d.next)}</textarea></label></div>
+  <p class="hint">Saves as you type.</p></section>
+  ${(()=>{const y=Object.keys(state.days).filter(x=>x<k&&state.days[x].next).sort().pop();return y?`<section class="card"><div class="eyebrow">Left for you on ${esc(prettyDay(y))}</div><p class="note" style="color:var(--fg)">${esc(state.days[y].next)}</p></section>`:''})()}
+  </aside></div>`;
+}
+
+/* ---------- RESEARCH MAP ---------- */
+function research(){
+  const m=activeMs(),all=tasksOf(m),pct=progress(all),live=state.milestones.filter(x=>!x.archived),arch=state.milestones.filter(x=>x.archived);
+  const head=isEditing('ms',m.id)
+    ?`<div class="fields"><label><span class="label">Milestone name</span><input type="text" id="msName" value="${esc(m.name)}"></label><label><span class="label">Objective</span><textarea id="msObj">${esc(m.objective)}</textarea></label><div class="row"><button class="btn primary" type="button" data-act="save-ms">Save</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div></div>`
+    :`<div class="row between wrap" style="align-items:flex-start"><div class="grow"><div class="eyebrow">${m.archived?'Archived milestone':'Active milestone'}</div><h2 style="margin-top:7px">${esc(m.name)}</h2><p>${esc(m.objective)}</p></div><div class="row wrap"><span class="pill metric">${all.filter(t=>t.done).length} / ${all.length} steps</span><span class="pill metric">${dur(all.reduce((a,t)=>a+taskMs(t.id),0))} logged</span><button class="btn ghost" type="button" data-act="edit-ms">Edit</button><button class="btn ghost" type="button" data-act="${m.archived?'unarchive':'archive'}">${m.archived?'Restore':'Archive'}</button>${state.milestones.length>1?(confirmDel&&confirmDel.kind==='ms'&&confirmDel.id===m.id?`<span class="confirm" style="flex-wrap:wrap;white-space:normal">Delete this milestone and all its steps? Logged time is kept.<button class="btn danger" type="button" data-act="del-yes">Yes, delete</button><button class="btn ghost" type="button" data-act="del-no">No</button></span>`:`<button class="btn ghost danger" type="button" data-act="ask-del" data-kind="ms" data-id="${esc(m.id)}">Delete</button>`):''}</div></div>`;
+  return `<div class="stack"><div class="card"><div class="mstabs"><label class="label" for="msSelect" style="margin:0">Milestone</label><select id="msSelect" style="width:auto;max-width:100%;flex:1">${live.map(x=>`<option value="${esc(x.id)}" ${x.id===m.id?'selected':''}>${esc(x.name)}</option>`).join('')}${arch.length?`<optgroup label="Archived">${arch.map(x=>`<option value="${esc(x.id)}" ${x.id===m.id?'selected':''}>${esc(x.name)}</option>`).join('')}</optgroup>`:''}</select>
+  ${isEditing('newms','x')?`<div class="editrow grow" style="margin:0"><input type="text" id="newMsName" placeholder="e.g. Milestone 3 — RL fine-tuning"><button class="btn primary" type="button" data-act="add-ms">Create</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div>`:`<button class="btn" type="button" data-act="new-ms">+ New milestone</button><button class="btn ghost" type="button" data-act="open-import-ms">Import milestone</button><button class="btn ghost" type="button" data-act="export-ms">Export as Markdown</button>`}</div>${importPanel()}</div>
+  <div class="card">${head}
+  <div class="progress"><div style="width:${pct}%"></div></div><div class="small metric">${pct}% of defined steps completed · not a measure of research quality</div>
+  <div class="divider"></div><div class="row between wrap"><h3>Research work packages</h3></div>
+  ${m.packages.map((p,pi)=>{const ex=state.expanded.includes(p.id);return `<section class="item"><div class="itemhead">
+    ${isEditing('pkg',p.id)?editField(p.name):`<button class="toggle" type="button" data-act="expand" data-id="${esc(p.id)}" aria-expanded="${ex}">${ex?'▾':'▸'}&nbsp; <span class="stepno">${pi+1}.</span>${esc(p.name)}</button><span class="pill">${p.tasks.filter(t=>t.done).length}/${p.tasks.length}</span><button class="iconbtn" type="button" data-act="edit" data-kind="pkg" data-id="${esc(p.id)}" title="Rename" aria-label="Rename">✎</button>${delBtn('pkg',p.id,'Delete work package')}`}
+    </div><div class="progress"><div style="width:${progress(p.tasks)}%"></div></div>
+    ${ex?`<div class="tasks">${p.tasks.map((t,ti)=>`<div class="taskline">${isEditing('task',t.id)?editField(t.name):`${taskCheck(t,(pi+1)+'.'+(ti+1))}<span class="tasktime">${taskMs(t.id)?dur(taskMs(t.id)):''}</span><button class="iconbtn" type="button" data-act="focus-task" data-id="${esc(t.id)}" title="Work on this now" aria-label="Work on this now">◎</button><button class="iconbtn" type="button" data-act="edit" data-kind="task" data-id="${esc(t.id)}" title="Edit" aria-label="Edit">✎</button>${delBtn('task',t.id,'Delete step')}`}</div>`).join('')}
+    <div class="editrow"><input type="text" id="new-${esc(p.id)}" data-newtask="${esc(p.id)}" placeholder="Add a meaningful step…"><button class="btn" type="button" data-act="add-task" data-id="${esc(p.id)}">Add</button></div></div>`:''}</section>`}).join('')}
+  <div class="editrow section"><input type="text" id="newPkg" placeholder="New work package, e.g. Experiment C — ablation"><button class="btn" type="button" data-act="add-pkg">+ Add work package</button></div>
+  </div></div>`;
+}
+
+/* ---------- TIME ---------- */
+function timeView(){
+  const keys=weekDays(weekOff),tk=dateKey(),totals=keys.map(dayMs),wt=totals.reduce((a,b)=>a+b,0),worked=totals.filter(Boolean).length,max=Math.max(...totals,3600000);
+  const ses=keys.flatMap(k=>(state.days[k]?.sessions||[]).map(s=>({...s,date:k})));
+  const byTask={};ses.forEach(s=>{const key=s.paperId?'paper:'+s.paperId:s.taskId;byTask[key]=(byTask[key]||0)+s.ms});
+  const rows=Object.entries(byTask).sort((a,b)=>b[1]-a[1]),tmax=rows[0]?.[1]||1;
+  const all=allTasks().filter(t=>!state.milestones.find(m=>m.id===t.milestoneId).archived);
+  return `<div class="stack"><div class="card"><div class="row between wrap"><div><div class="eyebrow">Time log</div><h2 style="margin-top:7px">Where your hours went</h2></div>${weekNav()}</div>
+  <div class="stats section">
+    <div class="stat"><span class="small">Today</span><b>${dur(dayMs(tk))}</b></div>
+    <div class="stat"><span class="small">${weekOff?'That week':'This week'}</span><b>${dur(wt)}</b></div>
+    <div class="stat"><span class="small">Avg per day worked</span><b>${worked?dur(wt/worked):'–'}</b></div>
+    <div class="stat"><span class="small">Sessions</span><b>${ses.length}</b></div></div>
+  <div class="bars" role="img" aria-label="Focus time per day">${keys.map((k,i)=>`<div class="barcol"><span class="barval">${totals[i]?dur(totals[i]):''}</span><div class="bar ${totals[i]?'has':''} ${k===tk?'today':''}" style="height:${Math.max(2,totals[i]/max*100)}%"></div><span class="barlbl">${DOW[i]}<br>${parseKey(k).getDate()}</span></div>`).join('')}</div>
+  <p class="hint">Bars show logged focus time. Rest days are part of the work.</p></div>
+  <div class="split"><section class="card"><h3>Time by task</h3>
+  ${rows.length?rows.map(([id,ms])=>{const pp=String(id).startsWith('paper:')?paper(id.slice(6)):null,t=pp?{name:'Reading · '+pp.title,packageName:'Paper'}:task(id);return `<div class="hbar"><span class="name">${esc(t?t.name:'Deleted step')}${t?`<span class="small"> · ${esc(t.packageName)}</span>`:''}</span><span class="tasktime">${dur(ms)}</span><div class="track"><div style="width:${ms/tmax*100}%"></div></div></div>`}).join(''):'<div class="empty">No time logged in this week.</div>'}
+  <div class="divider"></div><h3>Session log</h3>
+  ${keys.slice().reverse().filter(k=>state.days[k]?.sessions.length).map(k=>`<div class="loggroup"><h4>${esc(prettyDay(k))} · ${dur(dayMs(k))}</h4>${state.days[k].sessions.map(s=>`<div class="logline"><span class="when">${hm(s.start)}${s.manual?'':'–'+hm(s.end)}</span><span class="grow">${esc(sesLabel(s))}${s.note?`<div class="small note">${esc(s.note)}</div>`:''}</span><span class="tasktime">${dur(s.ms)}</span>${delBtn('session',k+'|'+s.id,'Delete session')}</div>`).join('')}</div>`).join('')||'<div class="empty">Nothing here yet.</div>'}
+  </section>
+  <aside class="card"><h3>Add time manually</h3><p class="small">Forgot the timer? Log it afterwards.</p><div class="fields">
+    <label><span class="label">Date</span><input type="date" id="logDate" value="${logDay||tk}" max="${tk}"></label>
+    <label><span class="label">Task</span><select id="logTask">${taskOptions(all,state.activeTaskId)}</select></label>
+    <label><span class="label">Minutes</span><input type="number" id="logMin" min="1" max="720" step="5" value="30"></label>
+    <label><span class="label">Note (optional)</span><input type="text" id="logNote" placeholder="What did you do?"></label>
+    <button class="btn primary" type="button" data-act="add-log">Log time</button></div></aside></div></div>`;
+}
+
+/* ---------- JOURNAL ---------- */
+function journal(){
+  const k=journalDate,d=day(k),tk=dateKey();
+  const hist=Object.keys(state.days).filter(x=>dayHas(state.days[x])).sort().reverse();
+  return `<div class="split"><section class="card"><div class="row between wrap"><div><div class="eyebrow">Research journal</div><h2 style="margin-top:8px">${esc(prettyDay(k))}${k===tk?' · today':''}</h2></div><div class="row"><input type="date" id="journalDate" value="${k}" max="${tk}" style="width:auto">${k!==tk?'<button class="btn ghost" type="button" data-act="jtoday">Today</button>':''}</div></div>
+  ${d.outcome?`<p><b style="color:var(--fg)">Focus question:</b> ${esc(d.outcome)}</p>`:''}${d.sessions.length?`<p class="small">${dur(dayMs(k))} logged across ${d.sessions.length} session${d.sessions.length>1?'s':''}</p>`:''}
+  <div class="fields section">
+  <label><span class="label">Research findings</span><textarea data-field="day:findings" data-date="${k}" style="min-height:150px">${esc(d.findings)}</textarea></label>
+  <label><span class="label">Unresolved questions / blocker</span><textarea data-field="day:blocker" data-date="${k}">${esc(d.blocker)}</textarea></label>
+  <label><span class="label">Next concrete action</span><textarea data-field="day:next" data-date="${k}">${esc(d.next)}</textarea></label>
+  <label><span class="label">Additional notes and links</span><textarea data-field="day:notes" data-date="${k}">${esc(d.notes)}</textarea></label></div>
+  <p class="hint">Saves as you type.</p></section>
+  <aside class="stack"><section class="card"><h3>Past entries</h3>${hist.length?`<div class="daylist">${hist.map(x=>{const e=state.days[x];return `<button class="dayitem ${x===k?'active':''}" type="button" data-act="jday" data-date="${x}"><span class="d"><span>${esc(prettyDay(x))}</span><span class="tasktime">${dayMs(x)?dur(dayMs(x)):''}</span></span><span class="s">${esc(e.findings||e.outcome||e.next||e.notes||'Time logged')}</span></button>`}).join('')}</div>`:'<div class="empty">Your entries will appear here, newest first.</div>'}</section>
+  <section class="card"><h3>Curiosity parking lot</h3><p>Ideas are not obligations.</p><div class="editrow"><input type="text" id="journalIdea" placeholder="Park an idea…"><button class="btn" type="button" data-act="park" data-src="journalIdea">Add</button></div>
+  ${state.ideas.length?state.ideas.map(i=>`<div class="idea"><div class="grow note">${esc(i.text)}</div>${delBtn('idea',i.id,'Remove idea')}</div>`).join(''):'<div class="empty section">Nothing parked yet.</div>'}</section></aside></div>`;
+}
+
+/* ---------- WEEKLY REVIEW ---------- */
+function review(){
+  const mon=addDays(mondayOf(new Date()),weekOff*7),wk=weekKey(mon),w=week(wk),sel=w.priorities.map(task).filter(Boolean).sort(byOrder),all=activeTasks();
+  const prev=state.weeks[weekKey(addDays(mon,-7))],carry=(prev?.priorities||[]).filter(id=>{const t=task(id);return t&&!t.done&&!w.priorities.includes(id)});
+  const keys=weekDays(weekOff),wt=keys.reduce((a,k)=>a+dayMs(k),0),worked=keys.filter(dayMs).length,allTs=allTasks();
+  return `<div class="split"><div class="stack"><section class="card"><div class="row between wrap"><div class="eyebrow">Week ${esc(wk)} · ${esc(prettyDay(keys[0]))} – ${esc(prettyDay(keys[6]))}</div>${weekNav()}</div>
+  <h2 style="margin-top:12px">Weekly direction</h2><p>Choose a few meaningful steps. No forced Monday-to-Friday schedule.</p>
+  <label class="label" for="direction">What matters most this week?</label><textarea id="direction" data-field="week:direction" data-week="${wk}">${esc(w.direction)}</textarea>
+  <div class="divider"></div><div class="row between"><h3>Selected priorities</h3><span class="pill">${sel.filter(t=>t.done).length}/${sel.length}</span></div>
+  ${sel.length?sel.map(t=>`<div class="taskline">${taskCheck(t)}<button class="iconbtn" type="button" data-act="unprio" data-id="${esc(t.id)}" data-week="${wk}" title="Remove from this week" aria-label="Remove from this week">×</button></div>`).join(''):'<div class="empty">No priorities picked for this week yet.</div>'}
+  ${carry.length?`<button class="btn section" type="button" data-act="carry" data-week="${wk}">Bring over ${carry.length} unfinished from last week</button>`:''}
+  <div class="section"><label class="label" for="addPriority">Add a milestone step to this week</label><select id="addPriority" data-week="${wk}">${taskOptions(all.filter(t=>!w.priorities.includes(t.id)&&!t.done),'','Choose a step…')}</select></div></section>
+  <section class="card"><h3>Review</h3><div class="fields">${[['completed','What did I complete?'],['learned','What did I learn?'],['blocked','What blocked me or diverted my attention?'],['next','What is the next research question?']].map(([id,l])=>`<label><span class="label">${l}</span><textarea data-field="week:${id}" data-week="${wk}">${esc(w[id])}</textarea></label>`).join('')}</div></section></div>
+  <aside class="stack"><section class="card"><h3>This week in time</h3><div class="stats" style="grid-template-columns:1fr 1fr"><div class="stat"><span class="small">Focus time</span><b>${dur(wt)}</b></div><div class="stat"><span class="small">Days worked</span><b>${worked}</b></div></div><button class="btn ghost section" type="button" data-act="goto-time">Open time log</button></section>
+  <section class="card"><h3>Research progress</h3><div class="small">${esc(activeMs().name)}</div><div class="progress"><div style="width:${progress(all)}%"></div></div><div class="small">${all.filter(t=>t.done).length}/${all.length} milestone steps complete</div><div class="divider"></div><p>Completion percentages count checkboxes. Your real output is the reproducible run, evaluation and written conclusion.</p><p class="small">The plan can roll forward if experiments take longer. No overdue counters.</p></section></aside></div>`;
+}
+
+/* ---------- SYNC ---------- */
+function syncView(){const c=gh||{owner:'',repo:'',branch:'main',path:'research-space-data.json'};
+  return `<div class="split"><section class="card"><div class="eyebrow">Sync between laptops</div><h2 style="margin-top:8px">${gh?'Connected to GitHub':'Connect your GitHub repo'}</h2>
+  ${gh?`<p>Your data is saved to <b style="color:var(--fg)">${esc(gh.owner+'/'+gh.repo)}</b>, file <code>${esc(gh.path)}</code> on branch <code>${esc(gh.branch)}</code>.</p>
+  ${repoPrivate===false?`<div class="checkin"><div><strong>This repository is public.</strong> <span class="small">Anyone on the internet can read your notes. Make it private in the repo's Settings → General → Danger Zone → Change visibility.</span></div></div>`:''}
+  <p class="small">${lastSync?'Last synced at '+hm(lastSync):'Not synced yet in this session'}${dirty?' · changes waiting to upload':''}</p>
+  ${syncErr?`<div class="checkin"><div><strong>Sync problem.</strong> <span class="small">${esc(syncErr)} Your work is still saved on this laptop.</span></div></div>`:''}
+  <div class="row wrap section"><button class="btn primary" type="button" data-act="sync-now">Sync now</button>${confirmDel&&confirmDel.kind==='gh'?`<span class="confirm">Stop syncing on this laptop?<button class="btn danger" type="button" data-act="gh-off">Yes</button><button class="btn ghost" type="button" data-act="del-no">No</button></span>`:`<button class="btn ghost" type="button" data-act="ask-del" data-kind="gh" data-id="x">Disconnect this laptop</button>`}</div>
+  <div class="divider"></div><h3>Change settings</h3>`:`<p>Your entries will be saved in a file inside your own repo. Connect the same repo on your home and work laptops and both will share the same data.</p>${syncErr?`<div class="checkin"><div><strong>Could not connect.</strong> <span class="small">${esc(syncErr)}</span></div></div>`:''}`}
+  <div class="fields section">
+    <div class="row wrap" style="align-items:flex-end"><label class="grow"><span class="label">Owner (your GitHub username)</span><input type="text" id="ghOwner" value="${esc(c.owner)}" placeholder="your-username" autocomplete="off"></label><label class="grow"><span class="label">Repository</span><input type="text" id="ghRepo" value="${esc(c.repo)}" placeholder="research-space" autocomplete="off"></label></div>
+    <div class="row wrap" style="align-items:flex-end"><label class="grow"><span class="label">Branch</span><input type="text" id="ghBranch" value="${esc(c.branch)}"></label><label class="grow"><span class="label">Data file</span><input type="text" id="ghPath" value="${esc(c.path)}"></label></div>
+    <label><span class="label">Access token</span><input type="password" id="ghToken" placeholder="${gh?'Saved on this laptop. Leave empty to keep it.':'github_pat_…'}" autocomplete="off"></label>
+    <button class="btn primary" type="button" data-act="gh-connect">${gh?'Save and reconnect':'Connect'}</button></div></section>
+  <aside class="stack"><section class="card"><h3>Create the token</h3><p class="small">Do this once on each laptop.</p><ol class="small" style="padding-left:18px;line-height:1.7;margin:8px 0">
+    <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained token</a>.</li>
+    <li>Name it, for example "Research Space · work laptop", and choose an expiration.</li>
+    <li>Repository access: <b>Only select repositories</b>, then pick this repo.</li>
+    <li>Repository permissions: <b>Contents → Read and write</b>.</li>
+    <li>Generate it, copy it, and paste it here.</li></ol></section>
+  <section class="card"><h3>Good to know</h3><p class="small">Keep the repo private. Your notes are stored in it as plain JSON.</p><p class="small">The token stays in this browser only. It is never written into the HTML or the repo.</p><p class="small">Changes upload about 15 seconds after you stop typing, and right away when you switch away from the tab. Each upload is a small commit, so you also get a full history of your work.</p><p class="small">When you open the page, it loads the latest data from GitHub. If both laptops changed things offline, entries and sessions from both are kept.</p></section></aside></div>`}
+
+/* ---------- milestone import / export ---------- */
+let importText='';
+const MS_TEMPLATE=`# Milestone 3 — RL fine-tuning
+Train a policy with GRPO on top of the SFT model and compare it with the SFT baseline.
+
+## Understand GRPO
+- Read the GRPO paper and write a one-page summary
+- Inspect the reward function on 20 examples
+
+## Experiment C — GRPO-small
+- [x] Prepare the reward dataset
+- Run and log GRPO-small
+- Evaluate on held-out examples`;
+const stripNum=s=>s.replace(/^\d+(\.\d+)*[.)]?\s+/,'').trim();
+function parseMilestone(text){
+  text=(text||'').trim();if(!text)throw Error('it is empty.');
+  if(text[0]==='{'){const j=JSON.parse(text),m=j.milestones?j.milestones[0]:(j.milestone||j);
+    if(!m||!Array.isArray(m.packages))throw Error('this JSON has no "packages" list.');
+    const packages=m.packages.map(p=>({name:stripNum(String(p.name||'Work package')),tasks:(p.tasks||[]).map(t=>typeof t==='string'?{name:stripNum(t),done:false}:{name:stripNum(String(t.name||'')),done:!!t.done}).filter(t=>t.name)}));
+    return {name:String(m.name||'Imported milestone'),objective:String(m.objective||''),packages}}
+  let name='',obj=[],packages=[],cur=null,mm;
+  for(const raw of text.split(/\r?\n/)){const l=raw.trim();if(!l)continue;
+    if((mm=l.match(/^#(?!#)\s*(.+)/))&&!name&&!packages.length){name=mm[1].trim();continue}
+    if((mm=l.match(/^#{1,6}\s*(.+)/))){cur={name:stripNum(mm[1])||'Work package',tasks:[]};packages.push(cur);continue}
+    if((mm=l.match(/^(?:[-*+•]|\d+(?:\.\d+)*[.)]?)\s+(?:\[( |x|X)\]\s*)?(.+)/))){if(!cur){cur={name:'Steps',tasks:[]};packages.push(cur)}const n=stripNum(mm[2]);if(n)cur.tasks.push({name:n,done:/x/i.test(mm[1]||'')});continue}
+    if(!packages.length)obj.push(l)}
+  if(!packages.length)throw Error('no work packages or steps found. Use "## Package" lines and "- step" lines.');
+  return {name:name||'Imported milestone',objective:obj.join(' '),packages}}
+function importInfo(){if(!importText.trim())return 'Paste or load a plan to see a preview.';
+  try{const p=parseMilestone(importText),n=p.packages.reduce((a,x)=>a+x.tasks.length,0);return `Ready: “${p.name}” · ${p.packages.length} work package${p.packages.length>1?'s':''} · ${n} step${n===1?'':'s'}`}
+  catch(e){return 'Not readable yet: '+(e.message||'check the format.')}}
+function msToMd(m){return `# ${m.name}\n${m.objective?m.objective+'\n':''}\n`+m.packages.map(p=>`## ${p.name}\n`+p.tasks.map(t=>`- ${t.done?'[x] ':''}${t.name}`).join('\n')).join('\n\n')+'\n'}
+function importPanel(){if(!isEditing('importms','x'))return '';
+  return `<div class="divider"></div><h3>Import a milestone</h3><p class="small">Paste a plan or load a file. It becomes a new milestone with its work packages and steps filled in.</p>
+  <div class="fields section"><label><span class="label">Milestone plan</span><textarea id="msImportText" style="min-height:220px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px" placeholder="${esc(MS_TEMPLATE)}">${esc(importText)}</textarea></label>
+  <div class="row wrap"><label class="btn ghost" for="msImportFile">Load from file (.md, .txt, .json)</label><input type="file" id="msImportFile" class="hidden" accept=".md,.markdown,.txt,.json,text/plain,text/markdown,application/json"><span class="small" id="msImportInfo">${esc(importInfo())}</span></div>
+  <div class="row wrap"><button class="btn primary" type="button" data-act="import-ms">Create milestone</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div>
+  <details><summary class="small" style="cursor:pointer">Show the format</summary><pre style="overflow-x:auto;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.5;margin-top:8px">${esc(MS_TEMPLATE)}</pre><p class="small"><code>#</code> is the milestone name, the line under it is the objective, <code>##</code> starts a work package, and <code>-</code> is a step. <code>- [x]</code> marks a step as done. Numbered lists work too. Exported milestones and old JSON backups can also be loaded.</p></details></div>`}
+
+function downloadText(name,text){const url=URL.createObjectURL(new Blob([text],{type:'text/markdown'})),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+
+/* ---------- DAY LOG ---------- */
+let logView=dateKey();
+const QUICK=[['wake','Woke up'],['arrive','Arrived at office'],['break','Break'],['back','Back to work'],['lunch','Lunch'],['leave','Left office'],['home','Home'],['sleep','Going to bed']];
+const QL=Object.fromEntries(QUICK);
+const FIELD_LBL={outcome:'today’s focus question',findings:'findings',blocker:'blocker notes',next:'next action',notes:'journal notes'};
+const short=s=>s.length>80?s.slice(0,77)+'…':s;
+const timeOn=(k,hhmm)=>{const [h,m]=hhmm.split(':').map(Number),x=parseKey(k);x.setHours(h,m,0,0);return x.getTime()};
+function logAuto(text,key,t=Date.now()){const k=dateKey(new Date(t)),d=day(k);
+  if(key&&d.log.some(e=>e.key===key&&t-e.t<15*60000))return;
+  const e={id:uid(),t,kind:'auto',text};if(key)e.key=key;d.log.push(e);commit([D(k)])}
+function addManual(k,type,text){const tk=dateKey(),at=k===logView?($('logAt')?.value||''):'';
+  if(!at&&k!==tk){notify('Set a time for this past day.');return}
+  const t=at?timeOn(k,at):Date.now();if(t>Date.now()+60000){notify('That time is in the future.');return}
+  day(k).log.push({id:uid(),t,kind:'manual',type,text});commit([D(k)]);render();notify(text+' · '+hm(t))}
+function dayStats(k){const L=(state.days[k]?.log||[]).filter(e=>e.kind==='manual').sort((a,b)=>a.t-b.t),isToday=k===dateKey(),now=Date.now();
+  const first=ty=>L.find(e=>e.type===ty),last=ty=>[...L].reverse().find(e=>e.type===ty);
+  const arr=first('arrive'),lv=last('leave');let office=0;if(arr){const end=lv&&lv.t>arr.t?lv.t:(isToday?now:0);if(end)office=end-arr.t}
+  let br=0,open=null;L.forEach(e=>{if(e.type==='break'||e.type==='lunch'){if(!open)open=e}else if(open&&['back','leave','home','sleep'].includes(e.type)){br+=e.t-open.t;open=null}});
+  if(open&&isToday)br+=now-open.t;
+  return {wake:first('wake'),arr,lv,office,br,open:isToday?open:null,focus:dayMs(k)}}
+function logRow(k,e){
+  if(isEditing('log',e.id))return `<div class="tl"><div class="editrow" style="margin:0;width:100%"><input type="time" id="editTime" value="${hm(e.t)}" style="flex:0 0 120px;min-width:110px"><input type="text" id="editText" value="${esc(e.text)}"><button class="btn primary" type="button" data-act="save-log" data-id="${esc(e.id)}">Save</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div></div>`;
+  return `<div class="tl ${e.kind}"><span class="when">${hm(e.t)}</span><span class="mark" title="${e.kind==='manual'?'Logged by you':'Added automatically'}"></span><span class="grow">${esc(e.text)}</span>${e.kind==='manual'?`<button class="iconbtn" type="button" data-act="edit" data-kind="log" data-id="${esc(e.id)}" title="Edit" aria-label="Edit">✎</button>`:''}${delBtn('log',k+'|'+e.id,'Delete entry')}</div>`}
+function quickCard(){const tk=dateKey(),st=dayStats(tk),lastM=(state.days[tk]?.log||[]).filter(e=>e.kind==='manual').sort((a,b)=>b.t-a.t)[0];
+  const btns=[['arrive','Arrived'],st.open?['back','Back to work']:['break','Break'],['lunch','Lunch'],['leave','Left office']];
+  return `<section class="card"><div class="row between"><h3>Quick log</h3><button class="btn ghost" type="button" data-act="goto-log">Day log</button></div>
+  <div class="quick">${btns.map(([ty,l])=>`<button class="btn ${st.open&&ty==='back'?'primary':''}" type="button" data-act="log-quick" data-type="${ty}" data-date="${tk}">${l}</button>`).join('')}</div>
+  <p class="hint">${lastM?'Last: '+esc(lastM.text)+' at '+hm(lastM.t):'Tap to note the time, like in your notebook.'}${st.open?' · on break since '+hm(st.open.t):''}</p></section>`}
+function dayLogView(){const k=logView,tk=dateKey(),d=day(k),st=dayStats(k),show=state.settings.showAuto!==false;
+  const items=d.log.slice().sort((a,b)=>a.t-b.t).filter(e=>show||e.kind==='manual');
+  const mon=mondayOf(parseKey(k)),wk=[...Array(7)].map((_,i)=>dateKey(addDays(mon,i)));
+  return `<div class="split"><section class="stack"><div class="card">
+  <div class="row between wrap"><div><div class="eyebrow">Day log</div><h2 style="margin-top:7px">${esc(prettyDay(k))}${k===tk?' · today':''}</h2></div>
+  <div class="weeknav"><button class="btn ghost" type="button" data-act="log-prev" aria-label="Previous day">‹</button><input type="date" id="logView" value="${k}" max="${tk}" style="width:auto"><button class="btn ghost" type="button" data-act="log-next" aria-label="Next day" ${k>=tk?'disabled':''}>›</button>${k!==tk?'<button class="btn ghost" type="button" data-act="log-today">Today</button>':''}</div></div>
+  <div class="stats section">
+    <div class="stat"><span class="small">Woke up</span><b>${st.wake?hm(st.wake.t):'–'}</b></div>
+    <div class="stat"><span class="small">At the office${st.arr?' · '+hm(st.arr.t)+(st.lv&&st.lv.t>st.arr.t?'–'+hm(st.lv.t):''):''}</span><b>${st.office?dur(st.office):'–'}</b></div>
+    <div class="stat"><span class="small">Breaks${st.open?' · on break now':''}</span><b>${st.br?dur(st.br):'–'}</b></div>
+    <div class="stat"><span class="small">Focus time</span><b>${st.focus?dur(st.focus):'–'}</b></div></div>
+  <div class="section"><span class="label">${k===tk?'Log now':'Add an entry'}</span><div class="quick">${QUICK.map(([ty,l])=>`<button class="btn ${st.open&&ty==='back'?'primary':''}" type="button" data-act="log-quick" data-type="${ty}" data-date="${k}">${l}</button>`).join('')}</div></div>
+  <div class="editrow"><input type="text" id="logText" placeholder="Something else, e.g. Meeting with supervisor"><input type="time" id="logAt" style="flex:0 0 120px;min-width:110px" aria-label="Time"><button class="btn" type="button" data-act="log-custom">Add</button></div>
+  <p class="hint">${k===tk?'Leave the time empty to use the current time. Fill it in to log something from earlier, like when you woke up.':'This is a past day, so set a time before adding an entry.'}</p></div>
+  <div class="card"><div class="row between wrap"><h3>Timeline</h3><label class="row small" style="gap:8px" for="showAuto"><input type="checkbox" id="showAuto" ${show?'checked':''}>Show app activity</label></div>
+  ${items.length?`<div class="timeline">${items.map(e=>logRow(k,e)).join('')}</div>`:`<div class="empty">${k===tk?'Nothing logged yet today. Tap “Woke up” or “Arrived at office” to start.':'Nothing was logged on this day.'}</div>`}
+  </div></section>
+  <aside class="stack"><section class="card"><h3>This week</h3>${(()=>{const S=wk.map(dayStats);return `<div class="stats" style="grid-template-columns:1fr 1fr"><div class="stat"><span class="small">Office time</span><b>${dur(S.reduce((a,s)=>a+s.office,0))}</b></div><div class="stat"><span class="small">Focus time</span><b>${dur(S.reduce((a,s)=>a+s.focus,0))}</b></div></div>`})()}<button class="btn ghost section" type="button" data-act="goto-logweek">Open week view</button></section>
+  <section class="card"><h3>How it works</h3><p class="small">Use the buttons like your notebook: one tap notes the time. Breaks are counted from “Break” or “Lunch” until “Back to work”.</p><p class="small">Research Space adds its own activity automatically: focus sessions, completed steps, parked ideas, imported milestones and when you write in your journal.</p>
+  <div class="legend"><span><span class="mark"></span>Logged by you</span><span><span class="mark auto"></span>Added automatically</span></div></section></aside></div>`}
+
+/* ---------- DAY LOG · WEEK ---------- */
+let logWeekOff=0;
+function avgClock(list){if(!list.length)return '–';const m=Math.round(list.reduce((a,t)=>{const d=new Date(t);return a+d.getHours()*60+d.getMinutes()},0)/list.length);return pad(Math.floor(m/60))+':'+pad(m%60)}
+function logWeekView(){const tk=dateKey(),mon=addDays(mondayOf(new Date()),logWeekOff*7),wk=[...Array(7)].map((_,i)=>dateKey(addDays(mon,i))),S=wk.map(dayStats);
+  const pick=f=>S.filter(f),tot=k=>S.reduce((a,s)=>a+s[k],0),avgDur=k=>{const n=S.filter(s=>s[k]).length;return n?dur(tot(k)/n):'–'};
+  const wakes=pick(s=>s.wake).map(s=>s.wake.t),arrs=pick(s=>s.arr).map(s=>s.arr.t),lvs=pick(s=>s.lv).map(s=>s.lv.t);
+  const lbl=logWeekOff===0?'This week':logWeekOff===-1?'Last week':weekKey(mon);
+  return `<div class="stack"><div class="card"><div class="row between wrap"><div><div class="eyebrow">Week ${esc(weekKey(mon))}</div><h2 style="margin-top:7px">${esc(prettyDay(wk[0]))} – ${esc(prettyDay(wk[6]))}</h2></div>
+  <div class="weeknav"><button class="btn ghost" type="button" data-act="logwk-prev" aria-label="Previous week">‹</button><span class="pill num" style="min-width:96px;justify-content:center">${esc(lbl)}</span><button class="btn ghost" type="button" data-act="logwk-next" aria-label="Next week" ${logWeekOff>=0?'disabled':''}>›</button>${logWeekOff?'<button class="btn ghost" type="button" data-act="logwk-now">Today</button>':''}</div></div>
+  <div class="stats section">
+    <div class="stat"><span class="small">Average wake-up</span><b>${avgClock(wakes)}</b></div>
+    <div class="stat"><span class="small">Average arrival</span><b>${avgClock(arrs)}</b></div>
+    <div class="stat"><span class="small">Office time</span><b>${tot('office')?dur(tot('office')):'–'}</b></div>
+    <div class="stat"><span class="small">Focus time</span><b>${tot('focus')?dur(tot('focus')):'–'}</b></div></div>
+  <div class="section" style="overflow-x:auto"><table class="wtable"><thead><tr><th>Day</th><th>Woke up</th><th>Arrived</th><th>Left</th><th>Office</th><th>Breaks</th><th>Focus</th></tr></thead><tbody>
+  ${wk.map((x,i)=>{const s=S[i];return `<tr class="${x===tk?'cur':''}"><td><button class="linkbtn" type="button" data-act="log-day" data-date="${x}" ${x>tk?'disabled':''}>${DOW[i]} ${parseKey(x).getDate()}</button></td><td>${s.wake?hm(s.wake.t):''}</td><td>${s.arr?hm(s.arr.t):''}</td><td>${s.lv?hm(s.lv.t):''}</td><td>${s.office?dur(s.office):''}</td><td>${s.br?dur(s.br):''}</td><td>${s.focus?dur(s.focus):''}</td></tr>`}).join('')}
+  </tbody><tfoot><tr><td>Average</td><td>${avgClock(wakes)}</td><td>${avgClock(arrs)}</td><td>${avgClock(lvs)}</td><td>${avgDur('office')}</td><td>${avgDur('br')}</td><td>${avgDur('focus')}</td></tr></tfoot></table></div>
+  <p class="hint">Averages only count the days where you logged that entry. Tap a day to open it.</p></div></div>`}
+
+/* ---------- areas: Research / Day Log ---------- */
+const HAS_SYNC=typeof syncView==='function';
+function renderNav(){const T={research:[['today','Today'],['research','Research Map'],['time','Time'],['journal','Journal'],['review','Weekly Review']],log:[['daylog','Day'],['logweek','Week']],papers:[['library','Library'],['questions','Open questions']],home:[['home','Today']]}[mode];if(HAS_SYNC)T.push(['sync','Sync']);
+  $('nav').innerHTML=T.map(([id,l])=>`<button type="button" data-tab="${id}" class="${id===tab?'active':''}">${l}</button>`).join('');
+  document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+  const PT={home:'Home',log:'Day Log',research:'Research',papers:'Papers'}[mode];$('pageTitle').textContent=PT;document.title=PT;
+  $('sub').textContent={home:homeSub(),log:'Your day in timestamps, kept apart from the research.',papers:'Read in passes. Keep the questions.',research:'One question at a time. Evidence over hours.'}[mode]}
+function setMode(m){if(m===mode)return;lastTab[mode]=tab;mode=m;tab=lastTab[m];edit=null;confirmDel=null;try{history.replaceState(null,'','#'+m)}catch{}render()}
+
+/* ---------- HOME ---------- */
+const QUOTES=[
+['If I have seen further it is by standing on the shoulders of giants.','Isaac Newton'],
+['We can only see a short distance ahead, but we can see plenty there that needs to be done.','Alan Turing'],
+['Chance favours only the prepared mind.','Louis Pasteur'],
+['The first principle is that you must not fool yourself, and you are the easiest person to fool.','Richard Feynman'],
+['All models are wrong, but some are useful.','George Box'],
+['Premature optimization is the root of all evil.','Donald Knuth'],
+['Simplicity is prerequisite for reliability.','Edsger Dijkstra'],
+['Machines take me by surprise with great frequency.','Alan Turing'],
+['I have no special talent. I am only passionately curious.','Albert Einstein'],
+['The important thing is not to stop questioning.','Albert Einstein'],
+['Nothing in life is to be feared, it is only to be understood.','Marie Curie'],
+['Well begun is half done.','Aristotle'],
+['Make haste slowly.','Augustus (Festina lente)'],
+['Little by little, one travels far.','Proverb'],
+['Rest is not idleness.','John Lubbock'],
+['An expert is a person who has made all the mistakes that can be made in a very narrow field.','Niels Bohr'],
+['Research is what I’m doing when I don’t know what I’m doing.','Wernher von Braun'],
+['The question of whether a computer can think is no more interesting than the question of whether a submarine can swim.','Edsger Dijkstra'],
+['Genius is one percent inspiration and ninety-nine percent perspiration.','Thomas Edison'],
+['Nature uses only the longest threads to weave her patterns.','Richard Feynman']];
+let quoteShift=0, quoteOverride=null;
+const MOTTOS=['Step by step, I am becoming the best version of myself.','Small steps every day. That is how I grow.','Progress, not perfection.','I don’t need to be perfect. I need to keep going.','One step today. A better me tomorrow.'];
+function parseQuotes(text){const out=[];let cat='';
+  for(const raw of String(text).split(/\r?\n/)){let l=raw.trim();if(!l||/^(-{3,}|\*{3,}|_{3,})$/.test(l))continue;
+    const h=l.match(/^#{2,6}\s*(.+)$/);if(h){cat=h[1].replace(/^\d+[.)]\s*/,'').trim();continue}
+    if(/^#/.test(l))continue;l=l.replace(/^>\s*/,'');
+    const ao=l.match(/^(?:[—–]|--)\s*(.+)$/);if(ao&&out.length&&!out[out.length-1][1]){out[out.length-1][1]=ao[1].trim();continue}
+    l=l.replace(/^(?:[-*+•]|\d+[.)])\s+/,'').trim();if(!l)continue;
+    let q=l,a='',m=l.match(/^(.*\S)\s+[—–~]\s+(.+)$/)||l.match(/^(.*\S)\s+--?\s+([^-]{1,60})$/);
+    if(m&&m[2].trim().split(/\s+/).length<=7){q=m[1];a=m[2].trim()}
+    q=q.trim().replace(/^["“”'‘’]+|["“”'‘’]+$/g,'').trim();if(q.length>1)out.push([q,a,cat])}
+  return out}
+function quoteSrc(){const n=(state.settings.fileQuotes||[]).length,own=(state.settings.quotes||[]).length;
+  return n?`${n} quotes from ${esc(state.settings.quotesSource||'your file')}${own?' + '+own+' of your own':''} · <button class="linkbtn" type="button" data-act="quotes-builtin">use built-in quotes</button>`
+    :`Built-in quotes${own?' + '+own+' of your own':''}. Load a .md file${typeof syncView==='function'?', or add quotes.md to your data repo,':''} to use your own list.`}
+function quotesFor(k){const fq=state.settings.fileQuotes||[];
+  const all=[...(fq.length?fq:QUOTES).map(q=>({t:q[0],a:q[1]&&q[1]!=='Unknown'?q[1]:'',c:q[2]||''})),...(state.settings.quotes||[]).map(q=>({t:q.text,a:q.author&&q.author!=='Me'?q.author:'',c:'My own words'}))];
+  if(!all.length)return [];const n=Math.floor(parseKey(k).getTime()/86400000)+quoteShift,cats=[...new Set(all.map(q=>q.c))];
+  if(cats.length<2){const out=[];for(let i=0;i<Math.min(3,all.length);i++)out.push(all[((n*3+i)%all.length+all.length)%all.length]);return out}
+  const out=[];for(let i=0;i<Math.min(3,cats.length);i++){const c=cats[((n+i)%cats.length+cats.length)%cats.length],list=all.filter(q=>q.c===c);out.push(list[((n%list.length)+list.length)%list.length])}return out}
+function homeSub(){const now=new Date(),h=now.getHours();return (h<5?'Good night':h<12?'Good morning':h<18?'Good afternoon':'Good evening')+' · '+now.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+function homeView(){const k=dateKey(),d=day(k),now=new Date(),h=now.getHours(),greet=h<5?'Good night':h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  const todos=d.todos,done=todos.filter(t=>t.done).length;
+  const prevK=Object.keys(state.days).filter(x=>x<k&&(state.days[x].todos||[]).some(t=>!t.done)).sort().pop();
+  const carry=prevK?state.days[prevK].todos.filter(t=>!t.done&&!todos.some(x=>x.text===t.text)):[];
+  const qs=quoteOverride?[quoteOverride,...quotesFor(k).filter(q=>q.t!==quoteOverride.t)].slice(0,3):quotesFor(k);
+  const lastNext=Object.keys(state.days).filter(x=>x<k&&state.days[x].next).sort().pop();
+  return `<section class="hero">${isEditing('motto','x')?`<div class="fields"><label class="label" for="mottoInput">Your words to remember</label><input type="text" id="mottoInput" value="${esc(state.settings.motto||MOTTOS[0])}" style="font-size:18px"><div class="quick">${MOTTOS.map(m=>`<button class="btn ghost" type="button" data-act="pick-motto" data-text="${esc(m)}">${esc(m)}</button>`).join('')}</div><div class="row"><button class="btn primary" type="button" data-act="save-motto">Save</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div></div>`:`<div class="mottorow"><h1 class="motto">${esc(state.settings.motto||MOTTOS[0])}</h1><button class="iconbtn" type="button" data-act="edit-motto" title="Change these words" aria-label="Change these words">✎</button></div>`}</section>
+  <div class="split"><div class="stack">
+    <section class="card"><label class="label" for="homeFocus">Focus of the day</label><textarea id="homeFocus" data-field="day:outcome" data-date="${k}" placeholder="What matters most today? One sentence is enough." style="min-height:72px;font-size:17px">${esc(d.outcome)}</textarea><p class="hint">Also shown as today’s research question.</p></section>
+    <section class="card"><div class="row between"><h3>Plan for today</h3><span class="pill metric">${done}/${todos.length}</span></div>
+    ${todos.length?todos.map(t=>`<div class="taskline"><label class="check ${t.done?'done':''}"><input type="checkbox" data-todo="${esc(t.id)}" ${t.done?'checked':''}><span>${esc(t.text)}</span></label>${delBtn('todo',t.id,'Remove')}</div>`).join(''):'<div class="empty">Write down two or three things for today. Small is fine.</div>'}
+    <div class="editrow"><input type="text" id="todoText" placeholder="Add something for today…"><button class="btn" type="button" data-act="add-todo">Add</button></div>
+    ${carry.length?`<button class="btn ghost section" type="button" data-act="carry-todos" data-from="${prevK}">Bring over ${carry.length} unfinished from ${esc(prettyDay(prevK))}</button>`:''}</section>
+  </div><aside class="stack">
+    <section class="card quote"><div class="eyebrow">Today’s quotes</div>${qs.map(q=>`<figure class="qitem">${q.c?`<div class="qcat">${esc(q.c)}</div>`:''}<blockquote>“${esc(q.t)}”</blockquote>${q.a?`<figcaption class="small">— ${esc(q.a)}</figcaption>`:''}</figure>`).join('')}
+    ${isEditing('quote','x')?`<div class="fields section"><input type="text" id="quoteText" placeholder="The quote"><input type="text" id="quoteAuthor" placeholder="Who said it (optional)"><div class="row"><button class="btn primary" type="button" data-act="save-quote">Add quote</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div></div>`:`<div class="row wrap section"><button class="btn ghost" type="button" data-act="next-quote">Another set</button><button class="btn ghost" type="button" data-act="add-quote-open">Add your own</button><label class="btn ghost" for="quotesFile">Load quotes file</label><input type="file" id="quotesFile" class="hidden" accept=".md,.markdown,.txt,text/plain,text/markdown"></div>`}<p class="hint">${quoteSrc()}</p></section>
+    <section class="card"><h3>Where to next?</h3><div class="row wrap"><button class="btn primary" type="button" data-act="go-mode" data-to="research">Research</button><button class="btn" type="button" data-act="go-mode" data-to="papers">Papers</button><button class="btn" type="button" data-act="go-mode" data-to="log">Day log</button></div>
+    ${lastNext?`<p class="small section">Research next action from ${esc(prettyDay(lastNext))}:</p><p class="note" style="color:var(--fg);margin-top:2px">${esc(state.days[lastNext].next)}</p>`:''}</section>
+  </aside></div>`}
+
+/* ---------- PAPERS ---------- */
+let openPaper=null, paperFilter='reading', paperSearch='', paperTag='';
+const PSTAT={queue:'To read',reading:'Reading',done:'Read'};
+const paper=id=>(state.papers||[]).find(p=>p.id===id);
+const sesLabel=s=>s.paperId?'Reading · '+(paper(s.paperId)?.title||'deleted paper'):(task(s.taskId)?.name||'Untitled');
+const tagsOf=p=>String(p.tags||'').split(',').map(x=>x.trim()).filter(Boolean);
+const paperMs=id=>Object.values(state.days).reduce((a,d)=>a+d.sessions.filter(s=>s.paperId===id).reduce((b,s)=>b+s.ms,0),0);
+const P=k=>'paper:'+k;
+const safeUrl=u=>/^https?:\/\//i.test(u)?u:'https://'+String(u).replace(/^[a-z]+:\/*/i,'');
+function newPaper(title,url){return {id:uid(),title,url:url||'',authors:'',year:'',tags:'',status:'queue',rating:0,why:'',p1:false,p2:false,p3:false,problem:'',idea:'',method:'',results:'',limits:'',connection:'',summary:'',notes:'',questions:[],added:Date.now(),updated:Date.now()}}
+const PASSES=[
+ {n:1,title:'Pass 1 · Skim',time:'5–10 min',how:'Read the title, abstract and introduction, glance at the section headings and figures, then read the conclusion. Decide if it deserves pass 2.',fields:[['problem','What problem does it solve?'],['idea','What is the main idea or contribution?']]},
+ {n:2,title:'Pass 2 · Understand',time:'about 1 hour',how:'Read everything except proofs. Look closely at figures, tables and baselines. Write every unclear term as a question.',fields:[['method','How does the method work?'],['results','What evidence supports it? Datasets, baselines, results.']]},
+ {n:3,title:'Pass 3 · Challenge',time:'optional',how:'Re-derive or mentally re-implement the key part. Question every assumption. Only for papers central to your work.',fields:[['limits','Limitations and what I doubt'],['connection','How does it connect to my research?']]}];
+function paperMd(p){const sec=(h,v)=>v&&String(v).trim()?`\n## ${h}\n${String(v).trim()}\n`:'';
+  return `# ${p.title}\n${[p.authors,p.year].filter(Boolean).join(' · ')}${p.url?'\n'+p.url:''}\n\nStatus: ${PSTAT[p.status]}${p.rating?' · Relevance: '+p.rating+'/5':''}${tagsOf(p).length?' · Tags: '+tagsOf(p).map(t=>'#'+t).join(' '):''}\nPasses done: ${[1,2,3].filter(n=>p['p'+n]).join(', ')||'none'}\n`
+  +sec('Why I read it',p.why)+PASSES.flatMap(ps=>ps.fields).map(([k,l])=>sec(l,p[k])).join('')+sec('In three sentences',p.summary)
+  +(p.questions.length?`\n## Questions\n${p.questions.map(q=>`- [${q.done?'x':' '}] ${q.text}${q.answer?' — '+q.answer:''}`).join('\n')}\n`:'')+sec('Notes',p.notes)}
+function paperRow(p){const oq=p.questions.filter(q=>!q.done).length,ms=paperMs(p.id);
+  return `<button class="prow" type="button" data-act="open-paper" data-id="${esc(p.id)}"><span class="ptitle">${esc(p.title)}</span><span class="pmeta">${esc([p.authors,p.year].filter(Boolean).join(' · ')||'No authors yet')}</span>
+  <span class="pinfo"><span class="pill">${PSTAT[p.status]}</span><span class="passes">${[1,2,3].map(n=>`<i class="${p['p'+n]?'on':''}" title="Pass ${n}">${n}</i>`).join('')}</span>${oq?`<span class="small">${oq} open question${oq>1?'s':''}</span>`:''}${ms?`<span class="small num">${dur(ms)}</span>`:''}${p.rating?`<span class="small" style="color:var(--amber)">${'★'.repeat(p.rating)}</span>`:''}${tagsOf(p).map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</span></button>`}
+function libraryView(){if(openPaper&&paper(openPaper))return paperView(paper(openPaper));
+  const all=state.papers||[],counts={queue:0,reading:0,done:0};all.forEach(p=>counts[p.status]=(counts[p.status]||0)+1);
+  const q=paperSearch.toLowerCase(),allTags=[...new Set(all.flatMap(tagsOf))].sort();
+  const list=all.filter(p=>(paperFilter==='all'||p.status===paperFilter)&&(!paperTag||tagsOf(p).includes(paperTag))&&(!q||(p.title+' '+p.authors+' '+p.tags).toLowerCase().includes(q))).sort((a,b)=>(b.updated||0)-(a.updated||0));
+  return `<div class="stack"><div class="card"><h3>Add a paper</h3><div class="editrow"><input type="text" id="newPaperTitle" placeholder="Paper title"><input type="text" id="newPaperUrl" placeholder="Link (arXiv, DOI, PDF), optional"><button class="btn primary" type="button" data-act="add-paper">Add to reading list</button></div></div>
+  <div class="card"><div class="row between wrap"><div class="chips">${[['reading','Reading'],['queue','To read'],['done','Read'],['all','All']].map(([k,l])=>`<button class="chip ${paperFilter===k?'active':''}" type="button" data-act="pfilter" data-k="${k}">${l} <span class="num">${k==='all'?all.length:counts[k]||0}</span></button>`).join('')}</div><input type="text" id="paperSearch" value="${esc(paperSearch)}" placeholder="Search title, author, tag…" style="max-width:260px"></div>
+  ${allTags.length?`<div class="chips section">${allTags.map(t=>`<button class="chip small ${paperTag===t?'active':''}" type="button" data-act="ptag" data-k="${esc(t)}">#${esc(t)}</button>`).join('')}</div>`:''}
+  <div class="plist section">${list.length?list.map(paperRow).join(''):`<div class="empty">${all.length?'No papers in this view. Try another filter.':'Your reading list is empty. Add the paper you are reading now, or one you keep meaning to read.'}</div>`}</div></div></div>`}
+function paperView(p){const r=state.running,mine=r&&r.paperId===p.id,ms=paperMs(p.id),id=esc(p.id),open=p.questions.filter(q=>!q.done).length;
+  const ses=Object.entries(state.days).flatMap(([k,d])=>d.sessions.filter(s=>s.paperId===p.id).map(s=>({...s,k}))).sort((a,b)=>b.start-a.start);
+  const F=(key,label,rows=3,ph='')=>`<label><span class="label">${label}</span><textarea data-field="paper:${key}" data-pid="${id}" style="min-height:${rows*26}px" placeholder="${esc(ph)}">${esc(p[key])}</textarea></label>`;
+  return `<div class="stack"><div class="card"><button class="btn ghost" type="button" data-act="close-paper">← Library</button>
+  <h2 style="margin-top:14px;font-size:24px">${esc(p.title)}</h2><div class="small">${esc([p.authors,p.year].filter(Boolean).join(' · ')||'Add authors and year under Details')}</div>
+  <div class="row wrap section">${p.url?`<a class="btn" href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener">Open paper ↗</a>`:''}
+  <select id="paperStatus" data-pid="${id}" style="width:auto" aria-label="Status">${Object.entries(PSTAT).map(([k,l])=>`<option value="${k}" ${p.status===k?'selected':''}>${l}</option>`).join('')}</select>
+  <span class="stars" role="group" aria-label="Relevance">${[1,2,3,4,5].map(n=>`<button class="star ${n<=p.rating?'on':''}" type="button" data-act="rate" data-n="${n}" data-id="${id}" title="Relevance ${n}/5" aria-label="Relevance ${n} of 5">★</button>`).join('')}</span>
+  <button class="btn ghost" type="button" data-act="export-paper" data-id="${id}">Export as Markdown</button>${delBtn('paper',p.id,'Delete paper')}</div></div>
+  <div class="split"><div class="stack">
+    <section class="card">${F('why','Why am I reading this?',2,'e.g. to understand how DPO avoids a reward model, for Milestone 3')}</section>
+    ${PASSES.map(ps=>`<section class="card pass ${p['p'+ps.n]?'done':''}"><label class="check" style="padding-top:0"><input type="checkbox" data-pass="${ps.n}" data-pid="${id}" ${p['p'+ps.n]?'checked':''}><span><b style="color:var(--fg)">${ps.title}</b> <span class="small">· ${ps.time}</span></span></label><p class="small" style="margin-top:0">${ps.how}</p><div class="fields">${ps.fields.map(([k,l])=>F(k,l,3)).join('')}</div></section>`).join('')}
+    <section class="card"><div class="fields">${F('summary','Explain it in three sentences',3,'If I can’t say it simply, I don’t understand it yet.')}${F('notes','Free notes, equations, links',5)}</div><p class="hint">Saves as you type.</p></section>
+  </div><aside class="stack">
+    <section class="card"><div class="row between"><h3>Reading time</h3><b class="num">${ms?dur(ms):'–'}</b></div>
+    ${mine?`<div class="focus"><div class="small">Reading session · started ${hm(r.start)}</div><div class="focusClock" id="focusClock">${clock(Date.now()-r.start)}</div><textarea data-field="run:note" style="min-height:56px" placeholder="Where did you stop? e.g. page 6, section 3.2">${esc(r.note||'')}</textarea><div class="row wrap"><button class="btn primary" type="button" data-act="end">End and log</button><button class="btn ghost" type="button" data-act="discard">Discard</button></div></div>`
+      :r?`<p class="small">A focus session is already running. End it on the Research Today page first.</p>`:`<button class="btn primary section" type="button" data-act="read-start" data-id="${id}">Start reading session</button>`}
+    ${ses.length?`<div class="section">${ses.slice(0,6).map(s=>`<div class="logline"><span class="when">${esc(prettyDay(s.k))}</span><span class="grow small note">${esc(s.note||'')}</span><span class="tasktime">${dur(s.ms)}</span></div>`).join('')}</div>`:''}</section>
+    <section class="card"><div class="row between"><h3>Questions</h3><span class="pill">${open} open</span></div><p class="small">Unclear terms, doubts, ideas to test.</p>
+    ${p.questions.map(q=>`<div class="qrow"><div class="taskline"><label class="check ${q.done?'done':''}"><input type="checkbox" data-qcheck="${esc(q.id)}" data-pid="${id}" ${q.done?'checked':''}><span>${esc(q.text)}</span></label>${delBtn('pq',p.id+'|'+q.id,'Delete question')}</div><input type="text" class="qans" data-field="pq:answer" data-pid="${id}" data-qid="${esc(q.id)}" value="${esc(q.answer||'')}" placeholder="Answer, when you find it"></div>`).join('')}
+    <div class="editrow"><input type="text" id="newQ" placeholder="Add a question…"><button class="btn" type="button" data-act="add-q" data-id="${id}">Add</button></div></section>
+    <section class="card"><h3>Details</h3><div class="fields">${[['title','Title'],['authors','Authors'],['year','Year'],['url','Link'],['tags','Tags, comma separated']].map(([k,l])=>`<label><span class="label">${l}</span><input type="text" data-field="paper:${k}" data-pid="${id}" value="${esc(p[k])}"></label>`).join('')}</div><p class="hint">Added on ${esc(prettyDay(dateKey(new Date(p.added))))}.</p></section>
+  </aside></div></div>`}
+function questionsView(){const ps=(state.papers||[]).filter(p=>p.questions.some(q=>!q.done)),total=ps.reduce((a,p)=>a+p.questions.filter(q=>!q.done).length,0);
+  return `<div class="card"><div class="eyebrow">Across all papers</div><h2 style="margin-top:7px">${total} open question${total===1?'':'s'}</h2><p>Questions you noted while reading. Some of them could become your next experiment.</p>
+  ${ps.length?ps.map(p=>`<div class="loggroup"><h4><button class="linkbtn" type="button" data-act="open-paper" data-id="${esc(p.id)}">${esc(p.title)}</button></h4>${p.questions.filter(q=>!q.done).map(q=>`<div class="taskline"><label class="check"><input type="checkbox" data-qcheck="${esc(q.id)}" data-pid="${esc(p.id)}"><span>${esc(q.text)}</span></label></div>`).join('')}</div>`).join(''):'<div class="empty section">No open questions. Add questions on a paper’s page while you read.</div>'}</div>`}
+
+/* ---------- render ---------- */
+function render(){
+  renderNav();
+  $('screen').innerHTML={home:homeView,library:libraryView,questions:questionsView,today,daylog:dayLogView,logweek:logWeekView,research,time:timeView,journal,review,sync:syncView}[tab]();
+  const ei=$('editInput');if(ei){ei.focus();ei.select()}
+}
+
+/* ---------- focus timer ---------- */
+function chime(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const t=audio.currentTime;[660,880].forEach((f,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(0,t+i*.25);g.gain.linearRampToValueAtTime(.18,t+i*.25+.03);g.gain.exponentialRampToValueAtTime(.001,t+i*.25+.9);o.connect(g).connect(audio.destination);o.start(t+i*.25);o.stop(t+i*.25+1)})}catch{}}
+function syncAck(){const r=state.running,iv=state.settings.checkIn*60000;ackCount=r&&iv?Math.floor((Date.now()-r.start)/iv):0;chimed=ackCount}
+setInterval(()=>{const r=state.running;if(!r)return;const el=Date.now()-r.start;if($('focusClock'))$('focusClock').textContent=clock(el);
+  const iv=state.settings.checkIn*60000;if(iv){const due=Math.floor(el/iv);if(due>ackCount&&due>chimed){chimed=due;chime();if(tab==='today')softRender();else notify(dur(due*iv)+' of focus. Time to check in.')}}},1000);
+function endSession(){const r=state.running;if(!r)return;const end=Date.now(),k=dateKey(new Date(r.start)),ms=end-r.start;
+  if(ms>=60000){day(k).sessions.push({id:uid(),taskId:r.taskId,...(r.paperId?{paperId:r.paperId}:{}),start:r.start,end,ms,note:(r.note||'').trim()});notify('Logged '+dur(ms)+'. Nice work.')}else notify('Under a minute, so it was not logged.');
+  logAuto(ms>=60000?'Ended focus session · '+dur(ms)+' on '+sesLabel(r)+(r.note&&r.note.trim()?' — '+short(r.note.trim()):''):'Stopped a focus session after less than a minute',null,end);state.running=null;commit(['main',D(k)]);render()}
+
+/* ---------- events ---------- */
+$('nav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;edit=null;confirmDel=null;render()});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+window.addEventListener('hashchange',()=>setMode(modeFromHash()));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&tab==='home')softRender()});
+const scr=$('screen');
+scr.addEventListener('input',e=>{const t=e.target,f=t.dataset.field;if(t.id==='paperSearch'){paperSearch=t.value;render();const el=$('paperSearch');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length)}return}if(t.id==='msImportText'){importText=t.value;const i=$('msImportInfo');if(i)i.textContent=importInfo();return}if(!f)return;const [s,key]=f.split(':');
+  if(s==='day'){day(t.dataset.date)[key]=t.value;commit([D(t.dataset.date)]);if(t.dataset.date===dateKey())logAuto('Wrote '+(FIELD_LBL[key]||key),'write:'+key)}
+  else if(s==='week'){week(t.dataset.week)[key]=t.value;commit(['main']);logAuto('Wrote in weekly review','write:week')}
+  else if(s==='run'&&state.running){state.running.note=t.value;commit(['main'])}
+  else if(s==='paper'){const p=paper(t.dataset.pid);if(p){p[key]=t.value;commit([P(p.id)]);logAuto('Wrote notes on '+short(p.title),'paper:'+p.id)}}
+  else if(s==='pq'){const p=paper(t.dataset.pid),q=p&&p.questions.find(x=>x.id===t.dataset.qid);if(q){q.answer=t.value;commit([P(p.id)])}}});
+scr.addEventListener('change',e=>{const t=e.target,k=dateKey();
+  if(t.dataset.pass){const p=paper(t.dataset.pid);if(p){p['p'+t.dataset.pass]=t.checked;if(t.checked){if(p.status==='queue')p.status='reading';logAuto('Finished pass '+t.dataset.pass+' · '+short(p.title))}commit([P(p.id)]);render()}return}
+  if(t.dataset.qcheck){const p=paper(t.dataset.pid),q=p&&p.questions.find(x=>x.id===t.dataset.qcheck);if(q){q.done=t.checked;commit([P(p.id)]);render()}return}
+  if(t.id==='paperStatus'){const p=paper(t.dataset.pid);if(p){p.status=t.value;if(t.value==='done')logAuto('Finished reading · '+short(p.title));commit([P(p.id)]);render()}return}
+  if(t.dataset.field&&/^paper:(title|authors|year|url|tags)$/.test(t.dataset.field)){render();return}
+  if(t.dataset.todo){const x=day(k).todos.find(q=>q.id===t.dataset.todo);if(x){x.done=t.checked;if(t.checked)logAuto('Done · '+short(x.text));commit([D(k)]);render()}return}
+  if(t.dataset.check){const x=rawTask(t.dataset.check);if(x){x.done=t.checked;if(t.checked){const tt=task(x.id);logAuto('Completed step '+tt.num+' · '+tt.name)}commit(['main']);if(t.checked)notify('Step done.');render()}return}
+  if(t.id==='activeTask'){state.activeTaskId=t.value;logAuto('Switched focus to '+(task(t.value)?.name||''));if(state.running)state.running.taskId=t.value;commit(['main']);render()}
+  else if(t.id==='addToday'&&t.value){day(k).selected.push(t.value);commit([D(k)]);render()}
+  else if(t.id==='addPriority'&&t.value){week(t.dataset.week).priorities.push(t.value);commit(['main']);render()}
+  else if(t.id==='checkIn'){state.settings.checkIn=+t.value;commit(['main'])}
+  else if(t.id==='msSelect'){state.activeMilestoneId=t.value;edit=null;commit(['main']);render()}
+  else if(t.id==='journalDate'&&t.value){journalDate=t.value;render()}
+  else if(t.id==='logDate'){logDay=t.value}
+  else if(t.id==='quotesFile'&&t.files?.[0]){const f=t.files[0];f.text().then(x=>{const q=parseQuotes(x);if(!q.length){notify('No quotes found in that file. Put one quote per line.');return}state.settings.fileQuotes=q;state.settings.quotesSource=f.name;quoteOverride=null;commit(['main']);render();notify('Loaded '+q.length+' quotes. One appears each day.')}).catch(()=>notify('Could not read that file.'))}
+  else if(t.id==='logView'&&t.value){logView=t.value>dateKey()?dateKey():t.value;edit=null;render()}
+  else if(t.id==='showAuto'){state.settings.showAuto=t.checked;commit(['main']);render()}
+  else if(t.id==='msImportFile'&&t.files?.[0]){t.files[0].text().then(x=>{importText=x;render();notify('File loaded. Check the preview, then create the milestone.')}).catch(()=>notify('Could not read that file.'))}});
+scr.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){const t=e.target;
+  if(t.id==='editInput')act('save-edit');else if(t.id==='editText'||t.id==='editTime'){const b=document.querySelector('[data-act=save-log]');if(b)act('save-log',b.dataset)}else if(t.id==='logText')act('log-custom');else if(t.id==='todoText')act('add-todo');else if(t.id==='newPaperTitle'||t.id==='newPaperUrl')act('add-paper');else if(t.id==='newQ'){const b=document.querySelector('[data-act=add-q]');if(b)act('add-q',b.dataset)}else if(t.id==='mottoInput')act('save-motto');else if(t.id==='quoteText'||t.id==='quoteAuthor')act('save-quote');else if(t.dataset.newtask)act('add-task',{id:t.dataset.newtask});else if(t.id==='newPkg')act('add-pkg');else if(t.id==='newMsName')act('add-ms');else if(t.id==='journalIdea')act('park',{src:'journalIdea'});else return;e.preventDefault()}
+  if(e.key==='Escape'&&(edit||confirmDel)){edit=null;confirmDel=null;render()}});
+scr.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
+
+function act(a,d={}){const k=dateKey();
+  switch(a){
+  case 'start':try{audio=audio||new (window.AudioContext||window.webkitAudioContext)()}catch{}state.running={start:Date.now(),taskId:state.activeTaskId,note:''};logAuto('Started focus session · '+(task(state.activeTaskId)?.name||'no task'));ackCount=0;chimed=0;commit(['main']);render();break;
+  case 'end':endSession();break;
+  case 'discard':logAuto('Discarded focus session');state.running=null;commit(['main']);render();notify('Session discarded.');break;
+  case 'ack':{const iv=state.settings.checkIn*60000;ackCount=Math.floor((Date.now()-state.running.start)/iv);render();break}
+  case 'unselect':day(k).selected=day(k).selected.filter(x=>x!==d.id);commit([D(k)]);render();break;
+  case 'park':{const box=$(d.src);if(box&&box.value.trim()){logAuto('Parked idea · '+short(box.value.trim()));state.ideas.unshift({id:uid(),text:box.value.trim()});commit(['main']);render();notify('Idea parked.')}break}
+  case 'expand':state.expanded=state.expanded.includes(d.id)?state.expanded.filter(x=>x!==d.id):[...state.expanded,d.id];commit(['main']);render();break;
+  case 'focus-task':state.activeTaskId=d.id;logAuto('Switched focus to '+(task(d.id)?.name||''));if(!day(k).selected.includes(d.id))day(k).selected.push(d.id);tab='today';commit(['main',D(k)]);render();break;
+  case 'edit':edit={kind:d.kind,id:d.id};confirmDel=null;render();break;
+  case 'cancel-edit':edit=null;render();break;
+  case 'save-edit':{const v=$('editInput')?.value.trim();if(v&&edit){if(edit.kind==='task')rawTask(edit.id).name=v;else if(edit.kind==='pkg')activeMs().packages.find(p=>p.id===edit.id).name=v;commit(['main'])}edit=null;render();break}
+  case 'ask-del':confirmDel={kind:d.kind,id:d.id};edit=null;render();break;
+  case 'del-no':confirmDel=null;render();break;
+  case 'del-yes':{const c=confirmDel;confirmDel=null;if(!c)break;const paths=['main'];
+    if(c.kind==='task'){state.milestones.forEach(m=>m.packages.forEach(p=>p.tasks=p.tasks.filter(t=>t.id!==c.id)));Object.values(state.weeks).forEach(w=>w.priorities=w.priorities.filter(x=>x!==c.id));const td=day(k);td.selected=td.selected.filter(x=>x!==c.id);paths.push(D(k))}
+    else if(c.kind==='ms'){const m=state.milestones.find(x=>x.id===c.id);if(m&&state.milestones.length>1){const ids=new Set(tasksOf(m).map(t=>t.id));state.milestones=state.milestones.filter(x=>x.id!==c.id);Object.values(state.weeks).forEach(w=>w.priorities=w.priorities.filter(x=>!ids.has(x)));const td=day(k);td.selected=td.selected.filter(x=>!ids.has(x));paths.push(D(k));const next=state.milestones.find(x=>!x.archived)||state.milestones[0];state.activeMilestoneId=next.id;if(ids.has(state.activeTaskId))state.activeTaskId=tasksOf(next)[0]?.id||null;notify('Milestone deleted.')}}
+    else if(c.kind==='pkg'){const m=activeMs();m.packages=m.packages.filter(p=>p.id!==c.id)}
+    else if(c.kind==='idea'){state.ideas=state.ideas.filter(i=>i.id!==c.id)}
+    else if(c.kind==='log'){const [dk,lid]=c.id.split('|');day(dk).log=day(dk).log.filter(x=>x.id!==lid);paths.length=0;paths.push(D(dk))}
+    else if(c.kind==='paper'){state.papers=state.papers.filter(x=>x.id!==c.id);state.deletedPapers=[...(state.deletedPapers||[]),c.id];openPaper=null;paths.push('paperdel:'+c.id);notify('Paper deleted.')}
+    else if(c.kind==='pq'){const [pid,qid]=c.id.split('|'),p=paper(pid);if(p){p.questions=p.questions.filter(x=>x.id!==qid);paths.length=0;paths.push(P(pid))}}
+    else if(c.kind==='todo'){day(k).todos=day(k).todos.filter(x=>x.id!==c.id);paths.length=0;paths.push(D(k))}
+    else if(c.kind==='session'){const [dk,sid]=c.id.split('|');day(dk).sessions=day(dk).sessions.filter(s=>s.id!==sid);paths.length=0;paths.push(D(dk))}
+    commit(paths);render();break}
+  case 'add-task':{const inp=$('new-'+d.id);if(inp&&inp.value.trim()){activeMs().packages.find(p=>p.id===d.id).tasks.push({id:uid(),name:inp.value.trim(),done:false});logAuto('Added step · '+short(inp.value.trim()));commit(['main']);render();$('new-'+d.id)?.focus()}break}
+  case 'add-pkg':{const inp=$('newPkg');if(inp&&inp.value.trim()){const id=uid();activeMs().packages.push({id,name:inp.value.trim(),tasks:[]});state.expanded.push(id);commit(['main']);render()}break}
+  case 'open-import-ms':edit={kind:'importms',id:'x'};confirmDel=null;render();$('msImportText')?.focus();break;
+  case 'import-ms':{let p;try{p=parseMilestone(importText)}catch(e){notify('Could not import: '+e.message);break}
+    const m={id:'m-'+uid(),name:p.name,objective:p.objective,archived:false,packages:p.packages.map(x=>({id:uid(),name:x.name,tasks:x.tasks.map(t=>({id:uid(),name:t.name,done:t.done}))}))};
+    logAuto('Imported milestone · '+m.name);state.milestones.push(m);state.activeMilestoneId=m.id;m.packages.forEach(x=>state.expanded.push(x.id));const first=tasksOf(m).find(t=>!t.done);if(first)state.activeTaskId=first.id;
+    importText='';edit=null;commit(['main']);render();notify('Milestone imported with '+tasksOf(m).length+' steps.');break}
+  case 'export-ms':{const m=activeMs();downloadText((m.name.replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-').toLowerCase()||'milestone')+'.md',msToMd(m));break}
+  case 'new-ms':edit={kind:'newms',id:'x'};render();$('newMsName')?.focus();break;
+  case 'add-ms':{const v=$('newMsName')?.value.trim();if(v){const m={id:'m-'+uid(),name:v,objective:'',archived:false,packages:[{id:uid(),name:'First work package',tasks:[]}]};state.milestones.push(m);state.activeMilestoneId=m.id;state.expanded.push(m.packages[0].id);edit={kind:'ms',id:m.id};commit(['main']);render()}break}
+  case 'edit-ms':edit={kind:'ms',id:activeMs().id};render();break;
+  case 'save-ms':{const m=activeMs(),n=$('msName').value.trim();if(n)m.name=n;m.objective=$('msObj').value.trim();edit=null;commit(['main']);render();break}
+  case 'archive':{const m=activeMs();m.archived=true;const next=state.milestones.find(x=>!x.archived);if(next)state.activeMilestoneId=next.id;commit(['main']);render();notify('Milestone archived. You can restore it from the list.');break}
+  case 'unarchive':activeMs().archived=false;commit(['main']);render();break;
+  case 'wk-prev':weekOff--;render();break;case 'wk-next':weekOff++;render();break;case 'wk-now':weekOff=0;render();break;
+  case 'sync-now':if(gh){busy?0:(dirty?push():(async()=>{await refresh();if(tab==='sync')render()})())}break;
+  case 'gh-connect':connectGh();break;
+  case 'gh-off':confirmDel=null;gh=null;ghSha=null;repoPrivate=null;syncErr='';try{localStorage.removeItem(CFG)}catch{}setSync('local');render();notify('This laptop no longer syncs. Your data stays here.');break;
+  case 'log-quick':addManual(d.date||logView,d.type,QL[d.type]);break;
+  case 'log-custom':{const v=$('logText')?.value.trim();if(!v){notify('Type what happened first.');break}addManual(logView,'other',v);break}
+  case 'save-log':{const e=day(logView).log.find(x=>x.id===d.id),tv=$('editTime')?.value,xv=$('editText')?.value.trim();if(e){if(tv)e.t=timeOn(logView,tv);if(xv)e.text=xv;commit([D(logView)])}edit=null;render();break}
+  case 'log-prev':logView=dateKey(addDays(parseKey(logView),-1));edit=null;render();break;
+  case 'log-next':{const n=dateKey(addDays(parseKey(logView),1));if(n<=dateKey())logView=n;edit=null;render();break}
+  case 'log-today':logView=dateKey();edit=null;render();break;
+  case 'log-day':logView=d.date;tab='daylog';edit=null;render();break;
+  case 'goto-logweek':tab='logweek';render();break;
+  case 'logwk-prev':logWeekOff--;render();break;case 'logwk-next':if(logWeekOff<0)logWeekOff++;render();break;case 'logwk-now':logWeekOff=0;render();break;
+  case 'goto-log':logView=dateKey();lastTab.log='daylog';setMode('log');break;
+  case 'add-todo':{const v=$('todoText')?.value.trim();if(!v)break;day(k).todos.push({id:uid(),text:v,done:false});commit([D(k)]);render();$('todoText')?.focus();break}
+  case 'carry-todos':{const td=day(k),src=state.days[d.from]?.todos||[];src.filter(t=>!t.done&&!td.todos.some(x=>x.text===t.text)).forEach(t=>td.todos.push({id:uid(),text:t.text,done:false}));commit([D(k)]);render();break}
+  case 'next-quote':quoteOverride=null;quoteShift++;render();break;
+  case 'add-quote-open':edit={kind:'quote',id:'x'};render();$('quoteText')?.focus();break;
+  case 'save-quote':{const q=$('quoteText')?.value.trim();if(!q){notify('Type the quote first.');break}const a=$('quoteAuthor')?.value.trim()||'';state.settings.quotes=[...(state.settings.quotes||[]),{id:uid(),text:q,author:a}];quoteOverride={t:q,a,c:'My own words'};edit=null;commit(['main']);render();notify('Quote added to your daily rotation.');break}
+  case 'edit-motto':edit={kind:'motto',id:'x'};render();$('mottoInput')?.focus();break;
+  case 'pick-motto':{const i=$('mottoInput');if(i){i.value=d.text;i.focus()}break}
+  case 'save-motto':{const v=$('mottoInput')?.value.trim();if(v){state.settings.motto=v;commit(['main'])}edit=null;render();break}
+  case 'quotes-builtin':delete state.settings.fileQuotes;delete state.settings.quotesSource;quoteOverride=null;commit(['main']);render();notify('Back to the built-in quotes.');break;
+  case 'add-paper':{const ti=$('newPaperTitle')?.value.trim(),u=$('newPaperUrl')?.value.trim();if(!ti&&!u){notify('Add a title or a link first.');break}const p=newPaper(ti||u,u);state.papers.unshift(p);openPaper=p.id;logAuto('Added paper · '+short(p.title));commit([P(p.id)]);render();window.scrollTo(0,0);break}
+  case 'pfilter':paperFilter=d.k;render();break;
+  case 'ptag':paperTag=paperTag===d.k?'':d.k;render();break;
+  case 'open-paper':tab='library';openPaper=d.id;edit=null;confirmDel=null;render();window.scrollTo(0,0);break;
+  case 'close-paper':openPaper=null;confirmDel=null;render();break;
+  case 'rate':{const p=paper(d.id),n=+d.n;if(p){p.rating=p.rating===n?0:n;commit([P(p.id)]);render()}break}
+  case 'export-paper':{const p=paper(d.id);if(p)downloadText((p.title.replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-').toLowerCase().slice(0,60)||'paper')+'.md',paperMd(p));break}
+  case 'read-start':{const p=paper(d.id);if(!p||state.running)break;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)()}catch{}state.running={start:Date.now(),taskId:null,paperId:p.id,note:''};ackCount=0;chimed=0;if(p.status==='queue')p.status='reading';logAuto('Started reading · '+short(p.title));commit(['main',P(p.id)]);render();break}
+  case 'add-q':{const p=paper(d.id),v=$('newQ')?.value.trim();if(p&&v){p.questions.push({id:uid(),text:v,answer:'',done:false});commit([P(p.id)]);render();$('newQ')?.focus()}break}
+  case 'go-mode':setMode(d.to);break;
+  case 'goto-time':tab='time';render();break;
+  case 'add-log':{const dk=$('logDate').value||k,min=Math.round(+$('logMin').value);if(!(min>0&&min<=720)){notify('Enter minutes between 1 and 720.');break}if(dk>k){notify('Pick today or an earlier date.');break}
+    const base=parseKey(dk);base.setHours(12,0,0,0);const start=dk===k?Date.now()-min*60000:base.getTime();
+    day(dk).sessions.push({id:uid(),taskId:$('logTask').value,start,end:start+min*60000,ms:min*60000,note:$('logNote').value.trim(),manual:true});day(dk).sessions.sort((a,b)=>a.start-b.start);
+    logDay=dk;commit([D(dk)]);render();notify('Logged '+dur(min*60000)+' on '+prettyDay(dk)+'.');break}
+  case 'jday':journalDate=d.date;render();break;case 'jtoday':journalDate=k;render();break;
+  case 'unprio':{const w=week(d.week);w.priorities=w.priorities.filter(x=>x!==d.id);commit(['main']);render();break}
+  case 'carry':{const w=week(d.week),mon=addDays(mondayOf(new Date()),weekOff*7),prev=state.weeks[weekKey(addDays(mon,-7))];(prev?.priorities||[]).forEach(id=>{const t=task(id);if(t&&!t.done&&!w.priorities.includes(id))w.priorities.push(id)});commit(['main']);render();break}
+  }
+}
+
+/* ---------- backup ---------- */
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='research-space-backup-'+dateKey()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const s=normalize(JSON.parse(await f.text()));state=s;syncAck();commit(['main',...Object.keys(state.days).map(D)]);render();notify('Backup imported.')}catch{notify('That file is not a Research Space backup.')}e.target.value=''};
+$('syncStatus').onclick=()=>{tab='sync';render()};
+
+syncAck();render();initialSync();if(gh)(async()=>{try{const r=await api('');if(r.ok){repoPrivate=!!(await r.json()).private;if(tab==='sync')render()}}catch{}})();
+})();
+</script>
+</body></html>
