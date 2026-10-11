@@ -123,7 +123,7 @@ input.qans{font-size:13px;padding:7px 10px;margin-left:27px;width:calc(100% - 27
     <label class="btn ghost" for="import">Import</label><input type="file" id="import" class="hidden" accept="application/json">
   </div>
 </header>
-<div class="modes" aria-label="Area"><button type="button" data-mode="home">Home</button><button type="button" data-mode="research">Research</button><button type="button" data-mode="papers">Papers</button><button type="button" data-mode="log">Day Log</button></div>
+<div class="modes" aria-label="Area"><button type="button" data-mode="home">Home</button><button type="button" data-mode="log">Day Log</button><button type="button" data-mode="research">Research</button><button type="button" data-mode="papers">Papers</button></div>
 <nav class="nav" id="nav" aria-label="Sections"></nav>
 <div id="screen"></div>
 </main>
@@ -576,7 +576,7 @@ function homeView(){const k=dateKey(),d=day(k),now=new Date(),h=now.getHours(),g
   </div><aside class="stack">
     <section class="card quote"><div class="eyebrow">Today’s quotes</div>${qs.map(q=>`<figure class="qitem">${q.c?`<div class="qcat">${esc(q.c)}</div>`:''}<blockquote>“${esc(q.t)}”</blockquote>${q.a?`<figcaption class="small">— ${esc(q.a)}</figcaption>`:''}</figure>`).join('')}
     ${isEditing('quote','x')?`<div class="fields section"><input type="text" id="quoteText" placeholder="The quote"><input type="text" id="quoteAuthor" placeholder="Who said it (optional)"><div class="row"><button class="btn primary" type="button" data-act="save-quote">Add quote</button><button class="btn ghost" type="button" data-act="cancel-edit">Cancel</button></div></div>`:`<div class="row wrap section"><button class="btn ghost" type="button" data-act="next-quote">Another set</button><button class="btn ghost" type="button" data-act="add-quote-open">Add your own</button><label class="btn ghost" for="quotesFile">Load quotes file</label><input type="file" id="quotesFile" class="hidden" accept=".md,.markdown,.txt,text/plain,text/markdown"></div>`}<p class="hint">${quoteSrc()}</p></section>
-    <section class="card"><h3>Where to next?</h3><div class="row wrap"><button class="btn primary" type="button" data-act="go-mode" data-to="research">Research</button><button class="btn" type="button" data-act="go-mode" data-to="papers">Papers</button><button class="btn" type="button" data-act="go-mode" data-to="log">Day log</button></div>
+    <section class="card"><h3>Where to next?</h3><div class="row wrap"><button class="btn" type="button" data-act="go-mode" data-to="log">Day Log</button><button class="btn primary" type="button" data-act="go-mode" data-to="research">Research</button><button class="btn" type="button" data-act="go-mode" data-to="papers">Papers</button></div>
     ${lastNext?`<p class="small section">Research next action from ${esc(prettyDay(lastNext))}:</p><p class="note" style="color:var(--fg);margin-top:2px">${esc(state.days[lastNext].next)}</p>`:''}</section>
   </aside></div>`}
 
